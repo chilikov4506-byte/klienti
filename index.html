@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChilikovWeb — Marketing Hub</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#0b1220;--bg2:#111827;--bg3:#1e293b;
+    --blue:#2563eb;--blue-lt:#3b82f6;--blue-pale:#60a5fa;
+    --white:#f8fafc;--slate:#e2e8f0;--muted:#94a3b8;--subtle:#475569;
+    --green:#16a34a;--amber:#d97706;--red:#dc2626;--purple:#7c3aed;
+    --border:rgba(37,99,235,0.2);--border2:rgba(37,99,235,0.12);
+    --radius:8px;--radius-lg:12px;
+  }
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--slate);min-height:100vh;}
+  .nav{display:flex;align-items:center;padding:0 24px;height:56px;background:rgba(11,18,32,0.97);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:6px;overflow-x:auto;}
+  .nav-logo{font-size:14px;font-weight:700;color:var(--blue-lt);margin-right:16px;white-space:nowrap;}
+  .nav-logo span{color:var(--white);}
+  .tab-btn{background:none;border:none;padding:6px 14px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:6px;white-space:nowrap;transition:all .15s;}
+  .tab-btn:hover{color:var(--slate);background:rgba(255,255,255,0.05);}
+  .tab-btn.active{color:var(--white);background:var(--blue);font-weight:500;}
+  .sync-bar{display:flex;align-items:center;gap:10px;padding:0 24px;margin-left:auto;flex-shrink:0;}
+  .sync-status{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:500;}
+  .sync-ok{background:rgba(22,163,74,.2);color:#4ade80;}
+  .sync-err{background:rgba(220,38,38,.15);color:#f87171;}
+  .sync-loading{background:rgba(37,99,235,.2);color:var(--blue-pale);}
+  .sync-btn{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted);cursor:pointer;}
+  .sync-btn:hover{border-color:var(--blue);color:var(--blue-lt);}
+
+  .page{display:none;padding:24px;max-width:1100px;margin:0 auto;}
+  .page.active{display:block;}
+  .card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:12px;}
+  .card-title{font-size:14px;font-weight:600;color:var(--white);margin-bottom:12px;}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px;}
+  .stat{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);padding:14px 16px;}
+  .stat-val{font-size:26px;font-weight:700;color:var(--white);}
+  .stat-label{font-size:11px;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:.04em;}
+  .stat.blue .stat-val{color:var(--blue-lt);}
+  .stat.green .stat-val{color:#4ade80;}
+  .stat.amber .stat-val{color:#fbbf24;}
+  .stat.purple .stat-val{color:#a78bfa;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+  label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
+  input,select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:13px;color:var(--white);outline:none;font-family:inherit;}
+  input:focus,select:focus{border-color:var(--blue);}
+  select option{background:var(--bg2);}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--radius);border:none;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;}
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-primary:hover{background:var(--blue-lt);}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+  .btn-ghost:hover{color:var(--slate);border-color:var(--blue);}
+  .btn-danger{background:transparent;color:var(--red);border:none;padding:4px 8px;font-size:12px;cursor:pointer;}
+  .btn-danger:hover{background:rgba(220,38,38,.1);}
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;padding:8px 10px;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);background:var(--bg2);}
+  td{padding:9px 10px;border-bottom:1px solid var(--border2);vertical-align:middle;}
+  tr:hover td{background:rgba(37,99,235,.04);}
+  tr:last-child td{border-bottom:none;}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .f-btn{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:4px 12px;font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;}
+  .f-btn:hover{border-color:var(--blue);color:var(--slate);}
+  .f-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+  .msg-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 14px;font-size:13px;line-height:1.7;color:var(--slate);white-space:pre-wrap;margin:8px 0;}
+  .copy-btn{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--muted);cursor:pointer;}
+  .copy-btn:hover{border-color:var(--blue);color:var(--blue-lt);}
+  .copy-btn.copied{background:rgba(22,163,74,.15);border-color:#16a34a;color:#4ade80;}
+  .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;}
+  .badge-blue{background:rgba(37,99,235,.2);color:var(--blue-pale);}
+  .badge-amber{background:rgba(217,119,6,.2);color:#fbbf24;}
+  .badge-green{background:rgba(22,163,74,.2);color:#4ade80;}
+  .rule{border-left:3px solid var(--blue);background:rgba(37,99,235,.08);border-radius:0 6px 6px 0;padding:8px 14px;font-size:12px;color:var(--blue-pale);margin:10px 0;}
+  .tactic{background:var(--bg3);border-radius:6px;padding:8px 12px;margin-bottom:6px;font-size:13px;line-height:1.5;color:var(--muted);}
+  .tactic strong{color:var(--white);}
+  .tracker-input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;color:var(--white);width:60px;text-align:center;}
+  .fu-warn{color:#f87171;font-size:11px;}
+  .fu-ok{color:var(--muted);font-size:11px;}
+  .inline-select{background:none;border:none;font-size:12px;color:var(--slate);cursor:pointer;padding:2px 4px;}
+  .inline-select:focus{outline:none;}
+  .empty-state{text-align:center;padding:32px;color:var(--subtle);font-size:13px;}
+  .today-bar{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--muted);}
+  .today-bar strong{font-size:18px;color:var(--white);font-variant-numeric:tabular-nums;}
+  .today-goal{color:var(--subtle);}
+  .today-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;min-width:80px;}
+  .today-fill{height:100%;width:0;background:var(--blue-lt);border-radius:3px;transition:width .3s;}
+  .today-fill.done{background:#4ade80;}
+  .stat.slate{border-left-color:var(--muted);}
+  .tag-found{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;background:rgba(148,163,184,.15);color:var(--muted);}
+  .area-sub{display:block;font-size:11px;color:var(--subtle);margin-top:1px;}
+  .tag-on{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;margin:2px 3px 0 0;}
+  .on-none{background:rgba(148,163,184,.15);color:var(--muted);}
+  .on-fb{background:rgba(37,99,235,.18);color:var(--blue-pale);}
+  .on-ig{background:rgba(124,58,237,.2);color:#c4b5fd;}
+  .on-s24{background:rgba(217,119,6,.18);color:#fbbf24;}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;padding-top:2px;}
+  .chip{background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:14px;padding:6px 13px;font-size:12px;cursor:pointer;transition:all .12s;font-family:inherit;}
+  .chip:hover{border-color:var(--blue);color:var(--slate);}
+  .chip.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:500;}
+  .rev-cell{font-size:12px;color:var(--muted);white-space:nowrap;}
+  .rev-cell strong{color:var(--white);font-weight:600;}
+  .rev-sub{display:block;font-size:11px;color:var(--subtle);}
+  .btn-edit{background:none;border:1px solid var(--border);color:var(--muted);border-radius:5px;padding:2px 7px;font-size:12px;cursor:pointer;margin-right:4px;}
+  .btn-edit:hover{border-color:var(--blue);color:var(--blue-lt);}
+  .card.editing{border-color:var(--amber);}
+  .edit-banner{display:none;font-size:12px;color:#fbbf24;margin-bottom:10px;}
+  .card.editing .edit-banner{display:block;}
+  .goal-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px;}
+  .goal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  a{color:var(--blue-lt);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  .week-row{display:grid;grid-template-columns:80px 1fr;gap:8px;align-items:start;margin-bottom:8px;}
+  .week-lbl{font-size:12px;font-weight:500;color:var(--muted);padding-top:10px;}
+  @media(max-width:600px){
+    .form-grid,.form-grid-3{grid-template-columns:1fr;}
+    .stats{grid-template-columns:1fr 1fr;}
+    .page{padding:14px;}
+    .sync-bar{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">CW <span>chilikovweb</span></div>
+  <button class="tab-btn active" onclick="showPage('crm',this)">📋 Контакти</button>
+  <button class="tab-btn" onclick="showPage('dm',this)">💬 DM шаблони</button>
+  <button class="tab-btn" onclick="showPage('fb',this)">👥 FB групи</button>
+  <button class="tab-btn" onclick="showPage('tracker',this)">📊 Tracker</button>
+  <button class="tab-btn" onclick="showPage('growth',this)">📈 Растеж</button>
+  <div class="sync-bar">
+    <span class="sync-status sync-loading" id="sync-status">⟳ Зарежда...</span>
+    <button class="sync-btn" onclick="syncNow()">↻ Синхронизирай</button>
+    <button class="sync-btn" onclick="migrateOld()" title="Еднократно: копира данните от старата таблица">⇄ Прехвърли старите данни</button>
+  </div>
+</nav>
+
+<!-- CONTACTS -->
+<div class="page active" id="page-crm">
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="cs-total">0</div><div class="stat-label">Общо контакти</div></div>
+    <div class="stat slate"><div class="stat-val" id="cs-found">0</div><div class="stat-label">Намерени, чакат DM</div></div>
+    <div class="stat blue"><div class="stat-val" id="cs-sent">0</div><div class="stat-label">Изпратено</div></div>
+    <div class="stat amber"><div class="stat-val" id="cs-replied">0</div><div class="stat-label">Отговорили</div></div>
+    <div class="stat green"><div class="stat-val" id="cs-interested">0</div><div class="stat-label">Заинтересовани</div></div>
+    <div class="stat purple"><div class="stat-val" id="cs-clients">0</div><div class="stat-label">Клиенти</div></div>
+    <div class="stat"><div class="stat-val" id="cs-conv">0%</div><div class="stat-label">Конверсия</div></div>
+  </div>
+
+  <div class="today-bar">
+    <span>Добавени днес</span>
+    <strong id="today-count">0</strong>
+    <span class="today-goal">от 10</span>
+    <div class="today-track"><div class="today-fill" id="today-fill"></div></div>
+  </div>
+
+  <div class="card" id="form-card">
+    <div class="card-title">+ Добави контакт</div>
+    <div class="edit-banner">✎ Редактираш съществуващ контакт. Натисни „Отказ“, за да излезеш.</div>
+    <div class="form-grid">
+      <div><label>Бизнес / Име *</label><input id="c-name" placeholder="Brotherhood Barbershop"></div>
+      <div><label>Ниша</label>
+        <select id="c-niche">
+          <option>Барбер</option><option>Салон красота</option><option>Маникюр / Педикюр</option>
+          <option>ВиК</option><option>Майстор</option><option>Ветеринар</option>
+          <option>Масажист</option><option>Друго</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid-3">
+      <div><label>Телефон</label><input id="c-phone" placeholder="0888 123 456"></div>
+      <div><label>Квартал / Град</label><input id="c-area" placeholder="Тракия, Пловдив"></div>
+      <div><label>Канал</label>
+        <select id="c-channel"><option>Viber</option><option>FB DM</option><option>Имейл</option><option>FB Група</option><option>Телефон</option></select>
+      </div>
+    </div>
+    <div class="form-grid-3">
+      <div><label>Рейтинг</label>
+        <select id="c-rating">
+          <option value="">—</option>
+          <option value="5.0">5.0</option><option value="4.9">4.9</option>
+          <option value="4.8">4.8</option><option value="4.7">4.7</option>
+          <option value="4.6">4.6</option><option value="4.5">4.5</option>
+          <option value="4.4">4.4</option><option value="4.3">4.3</option>
+          <option value="4.2">4.2</option><option value="4.1">4.1</option>
+          <option value="4.0">4.0</option>
+          <option value="под 4.0">под 4.0</option>
+        </select>
+      </div>
+      <div><label>Отзиви</label>
+        <select id="c-reviews">
+          <option value="">—</option>
+          <option value="0–9">0–9 — пропусни</option>
+          <option value="10–24">10–24</option>
+          <option value="25–49">25–49</option>
+          <option value="50–99">50–99</option>
+          <option value="100+">100+</option>
+        </select>
+      </div>
+      <div><label>Статус</label>
+        <select id="c-status" onchange="toggleFu()">
+          <option value="found" selected>Намерен — още не е писано</option>
+          <option value="sent">Изпратено</option>
+          <option value="replied">Отговорил</option>
+          <option value="interested">Заинтересован</option>
+          <option value="client">Клиент ✓</option>
+          <option value="no">Не е заинтересован</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div><label>Онлайн присъствие</label>
+        <div class="chips" id="c-online-chips">
+          <button type="button" class="chip" data-v="Facebook" onclick="toggleChip(this)">Facebook</button>
+          <button type="button" class="chip" data-v="Instagram" onclick="toggleChip(this)">Instagram</button>
+          <button type="button" class="chip" data-v="Studio24" onclick="toggleChip(this)">Studio24</button>
+          <button type="button" class="chip" data-v="Нищо" onclick="toggleChip(this)">Нищо</button>
+        </div>
+      </div>
+      <div id="fu-wrap"><label>Follow-up след</label>
+        <select id="c-fu">
+          <option value="0">Без напомняне</option>
+          <option value="24">24 часа</option>
+          <option value="48" selected>48 часа</option>
+          <option value="72">72 часа</option>
+          <option value="168">1 седмица</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-grid">
+      <div><label>Google Maps / FB линк</label><input id="c-link" placeholder="https://maps.google.com/..."></div>
+      <div><label>Бележка</label><input id="c-note" placeholder="47 отзива, 4.6, само FB страница"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="save-btn" onclick="addContact()">+ Добави</button>
+      <button class="btn btn-ghost" id="cancel-btn" onclick="cancelEdit()" style="display:none;">Отказ</button>
+      <button class="btn btn-ghost" onclick="exportCSV()">⬇ CSV</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('csv-file').click()">⬆ Импорт CSV</button>
+      <input type="file" id="csv-file" accept=".csv" style="display:none;" onchange="importCSV(this)">
+      <span id="add-msg" style="font-size:12px;color:#4ade80;display:none;">✓ Запазено в Google Sheets!</span>
+      <span id="add-err" style="font-size:12px;color:#f87171;display:none;">✗ Грешка при запазване</span>
+    </div>
+  </div>
+
+  <div class="filters">
+    <button class="f-btn active" onclick="setFilter('all',this)">Всички</button>
+    <button class="f-btn" onclick="setFilter('found',this)">Чакат DM</button>
+    <button class="f-btn" onclick="setFilter('sent',this)">Изпратено</button>
+    <button class="f-btn" onclick="setFilter('replied',this)">Отговорили</button>
+    <button class="f-btn" onclick="setFilter('interested',this)">Заинтересовани</button>
+    <button class="f-btn" onclick="setFilter('client',this)">Клиенти</button>
+    <button class="f-btn" onclick="setFilter('no',this)">Отказали</button>
+    <button class="f-btn" onclick="setFilter('followup',this)">⏰ Follow-up днес</button>
+  </div>
+
+  <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;">
+    <input id="search" placeholder="Търси по име, квартал, телефон, бележка..." style="max-width:320px;" oninput="renderContacts()">
+    <span id="count-label" style="font-size:12px;color:var(--muted);"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>Бизнес</th><th>Ниша</th><th>Рейтинг</th><th>Телефон</th><th>Канал</th><th>Статус</th>
+        <th>Дата</th><th>Follow-up</th><th>Бележка</th><th></th>
+      </tr></thead>
+      <tbody id="crm-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DM -->
+<div class="page" id="page-dm">
+  <h2 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:6px;">DM Шаблони</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">Намираш бизнес в Google Maps → копираш → добавяш в Контакти.</p>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span class="badge badge-green">Барбер / Салон</span><button class="copy-btn" onclick="copyMsg('dm1',this)">Копирай</button></div>
+    <div class="msg-box" id="dm1">Здравейте! Намерих [Brotherhood Barbershop] в Google Maps и видях, че нямате уебсайт.
+
+Правя landing pages за барбершопове и салони — цени, галерия, онлайн записване. Готово до 5 дни, от 150 €.
+
+Мога да ви направя примерен дизайн безплатно — без ангажимент. Ако харесате, продължаваме. Ако не — без притеснения.
+
+Интересувате ли се?</div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span class="badge badge-amber">ВиК / Майстор</span><button class="copy-btn" onclick="copyMsg('dm2',this)">Копирай</button></div>
+    <div class="msg-box" id="dm2">Здравейте! Видях [ВиК Про] в Google Maps — добри отзиви, но без уебсайт.
+
+Когато клиент ви търси спешно, не ви намират онлайн. Правя сайт-визитка за майстори — телефон, услуги, работно време. От 150 €, готов за 5 дни.
+
+Безплатен примерен дизайн — само за да видите как изглежда. Пишете ми ако ви интересува.</div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span class="badge badge-blue">Ветеринар / Масажист</span><button class="copy-btn" onclick="copyMsg('dm3',this)">Копирай</button></div>
+    <div class="msg-box" id="dm3">Здравейте! Намерих [Д-р Петрова] в Google Maps.
+
+Хората, препоръчани от клиенти, първо ви търсят в Google. Без сайт — отиват при конкурент.
+
+Правя landing pages за ветеринари и терапевти — услуги, часове, онлайн запис. Готово до 5 дни, от 150 €. Примерен дизайн — безплатно.
+
+Мога ли да ви покажа как би изглеждало?</div>
+  </div>
+  <div class="rule">Изпращай максимум 10–15 DM/ден. Чакай 24–48 часа преди follow-up.</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong style="font-size:13px;color:var(--white);">Follow-up (след 48 ч без отговор)</strong><button class="copy-btn" onclick="copyMsg('dm4',this)">Копирай</button></div>
+    <div class="msg-box" id="dm4">Здравейте, писах ви преди два дни за уебсайт за [бизнеса].
+
+Само исках да проверя дали сте видели съобщението. Ако не ви интересува — напълно разбирам, няма да пиша отново.
+
+Ако имате въпроси — на ваше разположение.</div>
+  </div>
+</div>
+
+<!-- FB -->
+<div class="page" id="page-fb">
+  <h2 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:16px;">FB Групи — Стратегия</h2>
+  <div class="card">
+    <div class="card-title">Кои групи да влизаш</div>
+    <div class="tactic"><strong>Бизнес групи</strong> — "Малък бизнес България", "Предприемачи България", "Фрийлансъри BG"</div>
+    <div class="tactic"><strong>Нишови групи</strong> — "Козметици и салони BG", "Барбери България", "ВиК и строителство"</div>
+    <div class="tactic"><strong>Локални групи</strong> — "Квартал Лозенец", "Красно село бизнес" и т.н.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Подход: 3 фази</div>
+    <div class="week-row"><div class="week-lbl">Ден 1–3</div><div><div class="tactic"><strong>Наблюдавай и коментирай.</strong> Без реклама — давай полезни съвети.</div></div></div>
+    <div class="week-row"><div class="week-lbl">Ден 4–7</div><div><div class="tactic"><strong>Образователен пост</strong> без директна реклама. В края: "Пишете ми лично."</div></div></div>
+    <div class="week-row"><div class="week-lbl">Ден 8+</div><div><div class="tactic"><strong>Отговаряй на постове</strong> за повече клиенти. После предложи безплатно демо.</div></div></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong style="font-size:13px;color:var(--white);">Пост — Салони за красота</strong><button class="copy-btn" onclick="copyMsg('fbp1',this)">Копирай</button></div>
+    <div class="msg-box" id="fbp1">Един въпрос към собствениците на салони за красота:
+
+Ако нова клиентка отвори Google и напише "салон за маникюр Лозенец" — ще ви намери ли?
+
+Ако отговорът е "не" или "не знам" — значи губите клиенти всеки ден без да го усещате.
+
+Правя елегантни сайтове специално за салони — с цени, галерия и онлайн записване.
+
+✅ Готов за 5 дни
+✅ От 180 €
+✅ Виждате дизайна преди да платите
+
+Пример → https://chilikov4506-byte.github.io/studioelegancelight/
+
+Пишете ми "САЛОН" в лично съобщение. 💅</div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong style="font-size:13px;color:var(--white);">Пост — ВиК Майстори</strong><button class="copy-btn" onclick="copyMsg('fbp2',this)">Копирай</button></div>
+    <div class="msg-box" id="fbp2">Работите добре. Клиентите ви препоръчват.
+
+Но знаете ли, че 7 от 10 души търсят водопроводчик онлайн — преди да попитат приятел?
+
+Ако нямате сайт, тези хора никога не стигат до вас.
+
+✅ Готов за 5 дни  ✅ От 150 €  ✅ Показвам пример преди да платите
+
+Пишете ми "ВиК" в лично съобщение. 🔧</div>
+  </div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><strong style="font-size:13px;color:var(--white);">Пост — Барбершопи</strong><button class="copy-btn" onclick="copyMsg('fbp3',this)">Копирай</button></div>
+    <div class="msg-box" id="fbp3">Опашката пред барбершопа е дълга. Опашката онлайн — не съществува.
+
+Instagram е красив — но не се класира при търсене в Google.
+
+✅ Ценова листа и екип  ✅ Онлайн записване  ✅ От 150 € — готов за 5 дни
+
+Пишете ми "БАРБЕР" в лично съобщение. ✂</div>
+  </div>
+  <div class="rule">Максимум 2–3 групи на ден. Един пост на група с 2–3 дни пауза. Без хаштагове в групи.</div>
+</div>
+
+<!-- TRACKER -->
+<div class="page" id="page-tracker">
+  <h2 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:16px;">Седмичен Tracker</h2>
+  <div class="stats">
+    <div class="stat blue"><div class="stat-val" id="t-dm">0</div><div class="stat-label">DM изпратени</div></div>
+    <div class="stat amber"><div class="stat-val" id="t-reply">0</div><div class="stat-label">Отговорили</div></div>
+    <div class="stat green"><div class="stat-val" id="t-leads">0</div><div class="stat-label">Запитвания</div></div>
+    <div class="stat purple"><div class="stat-val" id="t-clients">0</div><div class="stat-label">Клиенти</div></div>
+    <div class="stat"><div class="stat-val" id="t-rev">0 €</div><div class="stat-label">Приход</div></div>
+    <div class="stat"><div class="stat-val" id="t-conv">0%</div><div class="stat-label">Конверсия</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Въведи данни по седмици</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Седмица</th><th>DM изпратени</th><th>Отговорили</th><th>Запитвания</th><th>Клиенти</th><th>Приход €</th></tr></thead>
+        <tbody id="tracker-body"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Цели — Месец 1</div>
+    <div class="goal-row"><div class="goal-dot" style="background:#4ade80;"></div><span style="color:var(--muted);">DM изпратени:</span><strong style="color:var(--white);margin-left:6px;">200+</strong></div>
+    <div class="goal-row"><div class="goal-dot" style="background:#4ade80;"></div><span style="color:var(--muted);">Отговорили:</span><strong style="color:var(--white);margin-left:6px;">20–30</strong></div>
+    <div class="goal-row"><div class="goal-dot" style="background:#fbbf24;"></div><span style="color:var(--muted);">Запитвания:</span><strong style="color:var(--white);margin-left:6px;">5–8</strong></div>
+    <div class="goal-row"><div class="goal-dot" style="background:#fbbf24;"></div><span style="color:var(--muted);">Платени клиенти:</span><strong style="color:var(--white);margin-left:6px;">2–3</strong></div>
+    <div class="goal-row"><div class="goal-dot" style="background:#f87171;"></div><span style="color:var(--muted);">Приход:</span><strong style="color:var(--white);margin-left:6px;">300–450 €</strong></div>
+  </div>
+</div>
+
+<!-- GROWTH -->
+<div class="page" id="page-growth">
+  <h2 style="font-size:16px;font-weight:600;color:var(--white);margin-bottom:16px;">Растеж на страницата</h2>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">0–100</div><div class="stat-label">Седмица 1</div></div>
+    <div class="stat blue"><div class="stat-val">100–300</div><div class="stat-label">Седмица 2–3</div></div>
+    <div class="stat green"><div class="stat-val">300+</div><div class="stat-label">Седмица 4+</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Седмица 1 — Старт (0–100)</div>
+    <div class="tactic"><strong>Покани всички приятели</strong> — бутон "Покани приятели". Цел: 50+ бързо за social proof.</div>
+    <div class="tactic"><strong>Тагни страницата в личния профил</strong> — "Официално стартирах ChilikovWeb!"</div>
+    <div class="tactic"><strong>Сподели в Stories</strong> — Instagram + Facebook с линк.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Седмица 2–3 — Engagement (100–300)</div>
+    <div class="tactic"><strong>Кръстосани постове</strong> — всеки 2-ри пост от страницата и в личния профил.</div>
+    <div class="tactic"><strong>Тагни клиенти</strong> — при нов проект помоли клиента да сподели.</div>
+  </div>
+  <div class="card">
+    <div class="card-title">Седмица 4+ — Задържане (300+)</div>
+    <div class="tactic"><strong>Boost 5–10 лв./ден × 3 дни</strong> — таргет: собственици 30–55 г., България.</div>
+    <div class="tactic"><strong>Google Business Profile</strong> — регистрирай ChilikovWeb безплатно.</div>
+    <div class="tactic"><strong>Instagram crosspost</strong> — всеки пост без допълнителна работа.</div>
+  </div>
+  <div class="rule">Не купувай харесвания — 300 реални = по-добро от 3000 фалшиви.</div>
+  <div class="card">
+    <div class="card-title">KPI — Месец 1</div>
+    <table>
+      <thead><tr><th>Метрика</th><th>Цел</th><th>Минимум</th></tr></thead>
+      <tbody>
+        <tr><td>Харесвания</td><td style="color:#4ade80;">300+</td><td style="color:var(--muted);">150</td></tr>
+        <tr><td>Reach на пост</td><td style="color:#4ade80;">200–500</td><td style="color:var(--muted);">50</td></tr>
+        <tr><td>Engagement rate</td><td style="color:#4ade80;">5%+</td><td style="color:var(--muted);">2%</td></tr>
+        <tr><td>Запитвания от FB</td><td style="color:#4ade80;">5–8</td><td style="color:var(--muted);">2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Lead Finder (Google таблица „chilikovWeb Лийдове“) – постави тук Web app URL-а му.
+// Той пази и контактите, и tracker-а на хъба.
+const LF_URL='https://script.google.com/macros/s/AKfycby_drB9JTFHuvpyBj0UO6t85DbIqf_SfN0wRuy6Owp-_DmFj2gLrLAlz339Ou4_FtLb/exec';
+const GS_URL=LF_URL;
+// Старата таблица – ползва се само от бутона „Прехвърли старите данни“
+const OLD_GS_URL='https://script.google.com/macros/s/AKfycbx7ykH79qeAnqo5oakRzUJ89x0STho0cc1tRsoM7faDrYsxoC0TblmW7vEtMoZAG8p-/exec';
+const LS_KEY='cw_contacts_v3';
+const LT_KEY='cw_tracker_v3';
+
+// ── NAV ──
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── COPY ──
+function copyMsg(id,btn){
+  const txt=document.getElementById(id).innerText;
+  navigator.clipboard.writeText(txt).then(()=>{
+    btn.textContent='✓ Копирано!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Копирай';btn.classList.remove('copied');},2000);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=txt;
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    btn.textContent='✓ Копирано!';setTimeout(()=>btn.textContent='Копирай',2000);
+  });
+}
+
+// ── SYNC STATUS ──
+function setSyncStatus(state,msg){
+  const el=document.getElementById('sync-status');
+  el.textContent=msg;
+  el.className='sync-status sync-'+state;
+}
+
+// ── GOOGLE SHEETS SYNC ──
+let isSyncing=false;
+let pendingPush=false;
+
+// FIX: преди, ако запис вече вървеше, новата промяна се пропускаше тихо и после се губеше.
+// Сега се нарежда на опашка и се записва веднага след текущия запис.
+async function pushToSheets(){
+  localStorage.setItem(LS_KEY,JSON.stringify(contacts));
+  localStorage.setItem(LT_KEY,JSON.stringify(wdata));
+  if(isSyncing){pendingPush=true;return;}
+  isSyncing=true;
+  setSyncStatus('loading','⟳ Запазва...');
+  try{
+    do{
+      pendingPush=false;
+      await fetch(GS_URL,{method:'POST',body:JSON.stringify({action:'save_all',contacts}),headers:{'Content-Type':'text/plain'}});
+      await fetch(GS_URL,{method:'POST',body:JSON.stringify({action:'save_tracker',tracker:wdata}),headers:{'Content-Type':'text/plain'}});
+    }while(pendingPush);
+    setSyncStatus('ok','✓ Запазено в Sheets');
+  }catch(e){
+    setSyncStatus('err','✗ Грешка — запазено локално');
+  }finally{isSyncing=false;}
+}
+
+// FIX: Google Sheets превръща „0888123456“ в число 888123456 (губи нулата),
+// а „4.7“ може да стане дата (4 юли), „5.0“ → 5. Тук ги връщаме в правилния вид.
+function fixPhone(v){
+  if(v===null||v===undefined||v==='')return '';
+  let s=String(v).trim();
+  if(/^\d+$/.test(s)){
+    if(s.startsWith('359'))s='0'+s.slice(3);
+    else if(s.length===9)s='0'+s;
+  }
+  return s;
+}
+function fixRating(v){
+  if(v===null||v===undefined||v==='')return '';
+  const s=String(v).trim();
+  if(s==='под 4.0')return s;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){ // превърнато в дата от Sheets
+    const d=new Date(s);
+    return d.getDate()+'.'+(d.getMonth()+1);
+  }
+  const n=parseFloat(s.replace(',','.'));
+  if(isNaN(n))return s;
+  return n<4?'под 4.0':n.toFixed(1);
+}
+
+function normContact(c){
+  return {
+    id:Number(c.id)||Date.now(),
+    name:String(c.name||''),niche:String(c.niche||''),channel:String(c.channel||''),
+    phone:fixPhone(c.phone),area:String(c.area||''),online:String(c.online||''),
+    rating:fixRating(c.rating),reviews:String(c.reviews||''),
+    status:c.status||'sent',date:String(c.date||''),
+    fuDate:String(c.fuDate||''),note:String(c.note||''),link:String(c.link||''),
+    fuTs:Number(c.fuTs)||0
+  };
+}
+function normTracker(r){
+  return {dm:Number(r.dm)||0,reply:Number(r.reply)||0,lead:Number(r.lead)||0,client:Number(r.client)||0,rev:Number(r.rev)||0};
+}
+
+// ── ЕДНОКРАТНО ПРЕХВЪРЛЯНЕ ОТ СТАРАТА ТАБЛИЦА ──
+async function migrateOld(){
+  if(!LF_URL){alert('Първо сложи Web app URL-а в LF_URL.');return;}
+  if(!confirm('Ще копирам контактите и tracker-а от старата таблица в новата и ще възстановя телефоните от Lead Finder. Нищо няма да се изтрие. Продължаваме?'))return;
+  setSyncStatus('loading','⟳ Прехвърля...');
+  try{
+    const norm=s=>(s||'').toLowerCase().trim();
+    // 1) контакти + tracker от старата таблица
+    const old=await (await fetch(OLD_GS_URL+'?t='+Date.now())).json();
+    const ids=new Set(contacts.map(c=>String(c.id)));
+    const names=new Set(contacts.map(c=>norm(c.name)));
+    let added=0;
+    (old.contacts||[]).forEach(c=>{
+      if(ids.has(String(c.id))||names.has(norm(c.name)))return;
+      contacts.push(normContact(c));ids.add(String(c.id));names.add(norm(c.name));added++;
+    });
+    const emptyTracker=wdata.every(w=>!w.dm&&!w.reply&&!w.lead&&!w.client&&!w.rev);
+    if(emptyTracker&&old.tracker&&old.tracker.length){
+      wdata=old.tracker.map(normTracker);
+      while(wdata.length<4)wdata.push({dm:0,reply:0,lead:0,client:0,rev:0});
+    }
+    // 2) липсващи телефон / рейтинг / отзиви от Lead Finder
+    let fixed=0;
+    const ld=await (await fetch(LF_URL+'?action=leads_all&t='+Date.now())).json();
+    const byLink={},byName={};
+    (ld.leads||[]).forEach(l=>{if(l.link)byLink[l.link]=l;byName[norm(l.name)]=l;});
+    contacts.forEach(c=>{
+      const l=(c.link&&byLink[c.link])||byName[norm(c.name)];
+      if(!l)return;
+      if(!c.phone&&l.phone){c.phone=l.phone;fixed++;}
+      if(!c.rating&&l.rating)c.rating=l.rating;
+      if(!c.reviews&&l.reviews)c.reviews=l.reviews;
+    });
+    renderContacts();updateCrmStats();buildTrackerTable();recalcTracker();
+    await pushToSheets();
+    alert(`Готово!\nПрехвърлени контакти: ${added}\nВъзстановени телефони: ${fixed}\n\nЛипсващите телефони на ръчно добавени контакти се попълват ръчно (✎).`);
+  }catch(e){
+    setSyncStatus('err','✗ Грешка при прехвърляне');
+    alert('Грешка: '+e.message);
+  }
+}
+
+async function pullFromSheets(){
+  if(!GS_URL){setSyncStatus('err','✗ Липсва LF_URL — локални данни');return;}
+  setSyncStatus('loading','⟳ Зарежда от Sheets...');
+  try{
+    const r=await fetch(GS_URL+'?t='+Date.now());
+    const data=await r.json();
+    if(data.contacts&&data.contacts.length){
+      contacts=data.contacts.map(normContact);
+      localStorage.setItem(LS_KEY,JSON.stringify(contacts));
+    }
+    if(data.tracker&&data.tracker.length){
+      wdata=data.tracker.map(normTracker);
+      while(wdata.length<4)wdata.push({dm:0,reply:0,lead:0,client:0,rev:0});
+      localStorage.setItem(LT_KEY,JSON.stringify(wdata));
+    }
+    setSyncStatus('ok','✓ Синхронизирано');
+    renderContacts();updateCrmStats();buildTrackerTable();recalcTracker();
+  }catch(e){
+    setSyncStatus('err','✗ Sheets недостъпен — локални данни');
+    loadLocal();
+    return; // без импорт, за да не презапишем таблицата със стари данни
+  }
+  await importLeads();
+}
+
+// ── LEAD FINDER ИМПОРТ ──
+// Взима новите лийдове от Lead Finder, добавя ги като „Намерен“ и ги маркира „В хъба“.
+async function importLeads(){
+  if(!LF_URL)return;
+  try{
+    const r=await fetch(LF_URL+'?action=leads&t='+Date.now());
+    const data=await r.json();
+    const leads=data.leads||[];
+    if(!leads.length)return;
+    const norm=s=>(s||'').toLowerCase().trim();
+    const links=new Set(contacts.map(c=>c.link).filter(Boolean));
+    const names=new Set(contacts.map(c=>norm(c.name)));
+    const base=Date.now();let added=0;
+    leads.forEach((l,i)=>{
+      if((l.link&&links.has(l.link))||names.has(norm(l.name)))return;
+      contacts.unshift({
+        id:base+i,name:l.name,niche:l.niche||'Друго',channel:'Viber',
+        phone:l.phone||'',area:l.area||'',online:'',
+        rating:l.rating||'',reviews:l.reviews||'',status:'found',
+        link:l.link||'',note:l.note||'',
+        date:l.date||new Date().toLocaleDateString('bg-BG'),fuTs:0,fuDate:''
+      });
+      links.add(l.link);names.add(norm(l.name));added++;
+    });
+    if(added){
+      renderContacts();updateCrmStats();
+      await pushToSheets();
+    }
+    await fetch(LF_URL,{method:'POST',headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({action:'mark',ids:leads.map(l=>l.placeId)})});
+    if(added)setSyncStatus('ok',`✓ +${added} нови лийда`);
+  }catch(e){
+    console.warn('Lead Finder импорт:',e);
+  }
+}
+
+function syncNow(){pullFromSheets();}
+
+function loadLocal(){
+  try{contacts=JSON.parse(localStorage.getItem(LS_KEY)||'[]').map(c=>({...c,phone:fixPhone(c.phone),rating:fixRating(c.rating)}));}catch{contacts=[];}
+  try{
+    const t=JSON.parse(localStorage.getItem(LT_KEY)||'null');
+    wdata=t&&t.length?t:['Седмица 1','Седмица 2','Седмица 3','Седмица 4'].map(()=>({dm:0,reply:0,lead:0,client:0,rev:0}));
+  }catch{wdata=['','','',''].map(()=>({dm:0,reply:0,lead:0,client:0,rev:0}));}
+}
+
+// ── CONTACTS ──
+let contacts=[];
+let currentFilter='all';
+
+let editingId=null;
+
+function editContact(id){
+  const c=contacts.find(c=>c.id===id);
+  if(!c)return;
+  editingId=id;
+  document.getElementById('c-name').value=c.name||'';
+  document.getElementById('c-niche').value=c.niche||'Барбер';
+  document.getElementById('c-phone').value=c.phone||'';
+  document.getElementById('c-area').value=c.area||'';
+  document.getElementById('c-channel').value=c.channel||'Viber';
+  setOnline(c.online);
+  document.getElementById('c-rating').value=c.rating||'';
+  document.getElementById('c-reviews').value=c.reviews||'';
+  document.getElementById('c-status').value=c.status||'found';
+  document.getElementById('c-link').value=c.link||'';
+  document.getElementById('c-note').value=c.note||'';
+  toggleFu();
+  document.getElementById('save-btn').textContent='✓ Запази промените';
+  document.getElementById('cancel-btn').style.display='inline-block';
+  document.getElementById('form-card').classList.add('editing');
+  document.getElementById('form-card').scrollIntoView({behavior:'smooth',block:'center'});
+  document.getElementById('c-note').focus();
+}
+
+function cancelEdit(){
+  editingId=null;
+  ['c-name','c-phone','c-link','c-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('c-status').value='found';
+  setOnline('');
+  document.getElementById('c-rating').value='';
+  document.getElementById('c-reviews').value='';
+  toggleFu();
+  document.getElementById('save-btn').textContent='+ Добави';
+  document.getElementById('cancel-btn').style.display='none';
+  document.getElementById('form-card').classList.remove('editing');
+}
+
+function flashSaved(ok){
+  const el=document.getElementById(ok?'add-msg':'add-err');
+  el.style.display='inline';setTimeout(()=>el.style.display='none',3000);
+}
+
+function addContact(){
+  const name=document.getElementById('c-name').value.trim();
+  if(!name){document.getElementById('c-name').style.borderColor='var(--red)';setTimeout(()=>document.getElementById('c-name').style.borderColor='',1500);return;}
+  const status=document.getElementById('c-status').value;
+  const fuHrs=status==='found'?0:parseInt(document.getElementById('c-fu').value);
+  const now=Date.now();
+
+  if(editingId!==null){
+    const c=contacts.find(x=>x.id===editingId);
+    if(c){
+      const wasFound=c.status==='found';
+      c.name=name;
+      c.niche=document.getElementById('c-niche').value;
+      c.channel=document.getElementById('c-channel').value;
+      c.phone=document.getElementById('c-phone').value.trim();
+      c.area=document.getElementById('c-area').value.trim();
+      c.online=getOnline();
+      c.rating=document.getElementById('c-rating').value;
+      c.reviews=document.getElementById('c-reviews').value;
+      c.status=status;
+      c.link=document.getElementById('c-link').value.trim();
+      c.note=document.getElementById('c-note').value.trim();
+      if(status==='found'){c.fuTs=0;c.fuDate='';}
+      else if(wasFound&&status!=='client'&&status!=='no'){
+        const h=fuHrs||48;
+        c.fuTs=now+h*3600000;
+        c.fuDate=new Date(now+h*3600000).toLocaleDateString('bg-BG');
+      }
+    }
+    cancelEdit();
+    renderContacts();updateCrmStats();
+    pushToSheets().then(()=>flashSaved(true)).catch(()=>flashSaved(false));
+    return;
+  }
+
+  contacts.unshift({
+    id:now,name,
+    niche:document.getElementById('c-niche').value,
+    channel:document.getElementById('c-channel').value,
+    phone:document.getElementById('c-phone').value.trim(),
+    area:document.getElementById('c-area').value.trim(),
+    online:getOnline(),
+    rating:document.getElementById('c-rating').value,
+    reviews:document.getElementById('c-reviews').value,
+    status,
+    link:document.getElementById('c-link').value.trim(),
+    note:document.getElementById('c-note').value.trim(),
+    date:new Date().toLocaleDateString('bg-BG'),
+    fuTs:fuHrs?now+fuHrs*3600000:0,
+    fuDate:fuHrs?new Date(now+fuHrs*3600000).toLocaleDateString('bg-BG'):''
+  });
+  ['c-name','c-phone','c-link','c-note'].forEach(id=>document.getElementById(id).value='');
+  setOnline('');
+  document.getElementById('c-rating').value='';
+  document.getElementById('c-reviews').value='';
+  document.getElementById('c-name').focus();
+  renderContacts();updateCrmStats();
+  pushToSheets().then(()=>{
+    const m=document.getElementById('add-msg');m.style.display='inline';
+    setTimeout(()=>m.style.display='none',3000);
+  }).catch(()=>{
+    const e=document.getElementById('add-err');e.style.display='inline';
+    setTimeout(()=>e.style.display='none',3000);
+  });
+}
+
+function deleteContact(id){
+  if(!confirm('Изтрий контакта?'))return;
+  contacts=contacts.filter(c=>c.id!==id);
+  renderContacts();updateCrmStats();pushToSheets();
+}
+
+function changeStatus(id,val){
+  const c=contacts.find(c=>c.id===id);
+  if(!c)return;
+  const wasFound=c.status==='found';
+  c.status=val;
+  if(val==='found'){
+    c.fuTs=0;c.fuDate='';
+  }else if(wasFound){
+    // броенето на follow-up тръгва чак когато наистина си писал
+    const now=Date.now();
+    c.date=new Date().toLocaleDateString('bg-BG');
+    if(val==='client'||val==='no'){c.fuTs=0;c.fuDate='';}
+    else{c.fuTs=now+48*3600000;c.fuDate=new Date(now+48*3600000).toLocaleDateString('bg-BG');}
+  }
+  renderContacts();updateCrmStats();pushToSheets();
+}
+
+function toggleChip(el){
+  const chips=[...document.querySelectorAll('#c-online-chips .chip')];
+  if(el.dataset.v==='Нищо'){
+    const was=el.classList.contains('active');
+    chips.forEach(c=>c.classList.remove('active'));
+    if(!was)el.classList.add('active');
+  }else{
+    chips.find(c=>c.dataset.v==='Нищо').classList.remove('active');
+    el.classList.toggle('active');
+  }
+}
+
+function getOnline(){
+  return [...document.querySelectorAll('#c-online-chips .chip.active')].map(c=>c.dataset.v).join(' + ');
+}
+
+function setOnline(str){
+  const parts=(str||'').split('+').map(x=>x.trim());
+  document.querySelectorAll('#c-online-chips .chip').forEach(c=>c.classList.toggle('active',parts.includes(c.dataset.v)));
+}
+
+function toggleFu(){
+  const isFound=document.getElementById('c-status').value==='found';
+  document.getElementById('fu-wrap').style.opacity=isFound?'.4':'1';
+  document.getElementById('c-fu').disabled=isFound;
+}
+
+const SL={found:'Намерен',sent:'Изпратено',replied:'Отговорил',interested:'Заинтересован',client:'Клиент ✓',no:'Не е заинтересован'};
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderContacts();
+}
+
+function renderContacts(){
+  const search=(document.getElementById('search')?.value||'').toLowerCase();
+  const now=Date.now();const eod=now+86400000;
+  let list=contacts.filter(c=>{
+    const hay=[c.name,c.niche,c.area,c.phone,c.note,c.online,c.reviews].filter(Boolean).join(' ').toLowerCase();
+    const ms=!search||hay.includes(search);
+    let mf=currentFilter==='all'?true:currentFilter==='followup'?(c.fuTs>0&&c.fuTs<=eod):(c.status===currentFilter);
+    return ms&&mf;
+  });
+  const lbl=document.getElementById('count-label');
+  lbl.textContent=list.length===contacts.length?`${contacts.length} контакта`:`${list.length} от ${contacts.length}`;
+  const tbody=document.getElementById('crm-body');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state">${contacts.length?'Няма резултати.':'Добави първия контакт!'}</div></td></tr>`;return;}
+  tbody.innerHTML=list.map(c=>{
+    const ov=c.fuTs>0&&c.fuTs<=now;
+    const sn=c.fuTs>0&&c.fuTs>now&&c.fuTs<=eod;
+    const fc=c.status==='found'?'<span class="tag-found">чака DM</span>'
+      :c.fuDate?`<span class="${ov?'fu-warn':'fu-ok'}">${ov?'⚠ Просрочен':sn?'⏰ Днес!':c.fuDate}</span>`:'<span style="color:var(--subtle);">—</span>';
+    const nc=c.link?`<a href="${c.link}" target="_blank" style="font-weight:500;">${c.name}</a>`:`<span style="font-weight:500;color:var(--white);">${c.name}</span>`;
+    const ac=c.area?`<span class="area-sub">${c.area}</span>`:'';
+    const OC={'Facebook':'on-fb','Instagram':'on-ig','Studio24':'on-s24','Нищо':'on-none'};
+    const oc=(c.online||'').split('+').map(x=>x.trim()).filter(Boolean)
+      .map(v=>`<span class="tag-on ${OC[v]||'on-none'}">${v}</span>`).join('');
+    const rc=(c.rating||c.reviews)
+      ?`<span class="rev-cell"><strong>${c.rating||'—'}</strong> ★${c.reviews?`<span class="rev-sub">${c.reviews} отзива</span>`:''}</span>`
+      :'<span style="color:var(--subtle);font-size:12px;">—</span>';
+    const ph=c.phone?`<a href="viber://chat?number=%2B359${String(c.phone).replace(/\D/g,'').replace(/^0/,'')}" style="font-size:12px;">${c.phone}</a>`:'<span style="color:var(--subtle);font-size:12px;">—</span>';
+    return `<tr>
+      <td>${nc}${ac}</td>
+      <td><span style="font-size:12px;color:var(--muted);">${c.niche}</span><br>${oc}</td>
+      <td>${rc}</td>
+      <td>${ph}</td>
+      <td><span style="font-size:12px;">${c.channel}</span></td>
+      <td><select class="inline-select" onchange="changeStatus(${c.id},this.value)">
+        ${Object.entries(SL).map(([k,v])=>`<option value="${k}"${c.status===k?' selected':''}>${v}</option>`).join('')}
+      </select></td>
+      <td style="font-size:12px;color:var(--muted);">${c.date}</td>
+      <td>${fc}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.note||''}">${c.note||'—'}</td>
+      <td style="white-space:nowrap;"><button class="btn-edit" onclick="editContact(${c.id})" title="Редактирай">✎</button><button class="btn-danger" onclick="deleteContact(${c.id})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateCrmStats(){
+  document.getElementById('cs-total').textContent=contacts.length;
+  document.getElementById('cs-found').textContent=contacts.filter(c=>c.status==='found').length;
+  document.getElementById('cs-sent').textContent=contacts.filter(c=>c.status==='sent').length;
+  document.getElementById('cs-replied').textContent=contacts.filter(c=>c.status==='replied').length;
+  document.getElementById('cs-interested').textContent=contacts.filter(c=>c.status==='interested').length;
+  document.getElementById('cs-clients').textContent=contacts.filter(c=>c.status==='client').length;
+  // конверсията се смята само върху тези, на които наистина си писал
+  const contacted=contacts.filter(c=>c.status!=='found').length;
+  const rep=contacts.filter(c=>['replied','interested','client'].includes(c.status)).length;
+  document.getElementById('cs-conv').textContent=contacted?Math.round(rep/contacted*100)+'%':'0%';
+  updateTodayBar();
+}
+
+function updateTodayBar(){
+  const today=new Date().toLocaleDateString('bg-BG');
+  const n=contacts.filter(c=>c.date===today).length;
+  document.getElementById('today-count').textContent=n;
+  const fill=document.getElementById('today-fill');
+  fill.style.width=Math.min(100,n/10*100)+'%';
+  fill.classList.toggle('done',n>=10);
+}
+
+function exportCSV(){
+  const rows=[['Бизнес','Ниша','Квартал','Телефон','Онлайн','Рейтинг','Отзиви','Канал','Статус','Дата','Follow-up','Бележка','Линк']];
+  contacts.forEach(c=>rows.push([c.name,c.niche,c.area,c.phone,c.online,c.rating,c.reviews,c.channel,SL[c.status]||c.status,c.date,c.fuDate,c.note,c.link]));
+  const csv=rows.map(r=>r.map(v=>`"${(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='chilikovweb-contacts.csv';a.click();
+}
+
+function parseCSV(txt){
+  txt=txt.replace(/^\uFEFF/,'');
+  const rows=[];let row=[],cur='',q=false;
+  for(let i=0;i<txt.length;i++){
+    const ch=txt[i];
+    if(q){
+      if(ch==='"'){ if(txt[i+1]==='"'){cur+='"';i++;} else q=false; }
+      else cur+=ch;
+    }else{
+      if(ch==='"')q=true;
+      else if(ch===','){row.push(cur);cur='';}
+      else if(ch==='\n'){row.push(cur);cur='';rows.push(row);row=[];}
+      else if(ch!=='\r')cur+=ch;
+    }
+  }
+  if(cur!==''||row.length){row.push(cur);rows.push(row);}
+  return rows.filter(r=>r.some(v=>v.trim()!==''));
+}
+
+function importCSV(input){
+  const f=input.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const rows=parseCSV(rd.result);
+      if(rows.length<2){alert('Файлът е празен.');return;}
+      const H=rows[0].map(h=>h.trim());
+      const ix=n=>H.indexOf(n);
+      const RSL={};Object.entries(SL).forEach(([k,v])=>RSL[v]=k);
+      const existing=new Set(contacts.map(c=>(c.name||'').toLowerCase().trim()));
+      let added=0,skipped=0;
+      rows.slice(1).forEach((r,n)=>{
+        const g=name=>{const i=ix(name);return i>=0?(r[i]||'').trim():'';};
+        const nm=g('Бизнес');
+        if(!nm)return;
+        if(existing.has(nm.toLowerCase())){skipped++;return;}
+        const st=RSL[g('Статус')]||'found';
+        const fuD=g('Follow-up');
+        let fuTs=0;
+        if(fuD){const p=fuD.replace(/\s*г\.?\s*$/,'').split('.').map(x=>parseInt(x));
+          if(p.length===3)fuTs=new Date(p[2],p[1]-1,p[0]).getTime();}
+        contacts.push({
+          id:Date.now()+n,
+          name:nm,niche:g('Ниша')||'Барбер',area:g('Квартал'),
+          phone:g('Телефон'),online:g('Онлайн'),
+          rating:g('Рейтинг'),reviews:g('Отзиви'),
+          channel:g('Канал')||'Viber',status:st,
+          date:g('Дата')||new Date().toLocaleDateString('bg-BG'),
+          fuTs,fuDate:fuD,note:g('Бележка'),link:g('Линк')
+        });
+        existing.add(nm.toLowerCase());added++;
+      });
+      renderContacts();updateCrmStats();pushToSheets();
+      alert(`Добавени: ${added}\nПропуснати дубликати: ${skipped}`);
+    }catch(e){alert('Грешка при четене на файла: '+e.message);}
+    input.value='';
+  };
+  rd.readAsText(f,'utf-8');
+}
+
+// ── TRACKER ──
+let wdata=[];
+const WEEKS=['Седмица 1','Седмица 2','Седмица 3','Седмица 4'];
+
+function buildTrackerTable(){
+  document.getElementById('tracker-body').innerHTML=wdata.map((r,i)=>`<tr>
+    <td style="font-weight:500;color:var(--white);">${WEEKS[i]}</td>
+    <td><input class="tracker-input" type="number" min="0" value="${r.dm}" onchange="wdata[${i}].dm=Math.max(0,+this.value);recalcTracker();pushToSheets()"></td>
+    <td><input class="tracker-input" type="number" min="0" value="${r.reply}" onchange="wdata[${i}].reply=Math.max(0,+this.value);recalcTracker();pushToSheets()"></td>
+    <td><input class="tracker-input" type="number" min="0" value="${r.lead}" onchange="wdata[${i}].lead=Math.max(0,+this.value);recalcTracker();pushToSheets()"></td>
+    <td><input class="tracker-input" type="number" min="0" value="${r.client}" onchange="wdata[${i}].client=Math.max(0,+this.value);recalcTracker();pushToSheets()"></td>
+    <td><input class="tracker-input" type="number" min="0" value="${r.rev}" onchange="wdata[${i}].rev=Math.max(0,+this.value);recalcTracker();pushToSheets()"></td>
+  </tr>`).join('');
+}
+
+function recalcTracker(){
+  const dm=wdata.reduce((s,r)=>s+r.dm,0);
+  const re=wdata.reduce((s,r)=>s+r.reply,0);
+  document.getElementById('t-dm').textContent=dm;
+  document.getElementById('t-reply').textContent=re;
+  document.getElementById('t-leads').textContent=wdata.reduce((s,r)=>s+r.lead,0);
+  document.getElementById('t-clients').textContent=wdata.reduce((s,r)=>s+r.client,0);
+  document.getElementById('t-rev').textContent=wdata.reduce((s,r)=>s+r.rev,0)+' €';
+  document.getElementById('t-conv').textContent=dm?Math.round(re/dm*100)+'%':'0%';
+}
+
+// ── INIT ──
+loadLocal();
+toggleFu();
+renderContacts();updateCrmStats();buildTrackerTable();recalcTracker();
+pullFromSheets();
+
+// Enter в полето за име = добавяне
+['c-name','c-phone','c-note'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')addContact();});
+});
+</script>
+</body>
+</html>
