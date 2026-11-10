@@ -63,7 +63,8 @@ h2 .cnt{font-size:12px;color:var(--muted);font-weight:400;}
 .b.vb{background:#7360f2;border-color:#7360f2;color:#fff;}
 .b.sm{padding:6px 10px;font-size:12px;}
 .b.r-no{color:#f87171;}
-.res{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px;padding-top:12px;border-top:1px dashed var(--border2);}
+.res-lbl{grid-column:1/-1;font-size:11px;color:var(--subtle);text-transform:uppercase;letter-spacing:.05em;}
 .res .b{justify-content:center;padding:10px 6px;font-size:12px;}
 .script{display:none;background:var(--bg3);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:13px;line-height:1.6;}
 .script.on{display:block;}
@@ -416,14 +417,23 @@ const OUT={
   no:{lbl:'❌ Отказ',status:'no',fu:0,msg:'no'},
   client:{lbl:'💰 Клиент',status:'client',fu:0,msg:null}
 };
-let cur=null;
+let cur=null,undoSnap=null;
+const SNAP_KEYS=['status','calls','lastResult','fuTs','fuDate','note','date','owner'];
+function undoBtn(){return `<button class="b r-no" onclick="undoOutcome()">↩ Отмени</button>`;}
+function undoOutcome(){
+  if(!undoSnap)return;const c=contacts.find(x=>x.id===undoSnap.id);
+  if(c){SNAP_KEYS.forEach(k=>c[k]=undoSnap.v[k]);touch(c);renderAllPages();pushToSheets();}
+  undoSnap=null;closeSheet();toast('Отменено');
+}
 
 function outcome(id,key){
   const c=contacts.find(x=>x.id===id);if(!c)return;
   const o=OUT[key];cur={c,key};
+  undoSnap={id:c.id,v:Object.fromEntries(SNAP_KEYS.map(k=>[k,c[k]]))};
   if(key==='later'){openLater(c);return;}
   if(key==='client'){
     const v=prompt('Сума на поръчката в € (за статистиката):','280');
+    if(v===null){undoSnap=null;return;}   // натиснат „Cancel“ – нищо не се променя
     applyOutcome(c,key,0);
     const amt=Number(v)||0;if(amt){const i=weekIdx(new Date());while(wdata.length<i+1)wdata.push(normTracker({}));wdata[i].rev+=amt;pushTracker();}
     toast('🎉 Браво!');return;
@@ -448,13 +458,14 @@ function openMsg(c,text,lbl,fu){
   const ph=intlPhone(c.phone);
   $('sheet').innerHTML=`
     <h3>${esc(lbl)} · ${esc(c.name)}</h3>
-    <p>${fu?'Follow-up: '+esc(c.fuDate)+' · ':''}Редактирай при нужда и изпрати.</p>
+    <p>✓ Записано като „${esc(lbl)}“. ${fu?'Follow-up: '+esc(c.fuDate)+' · ':''}Сгрешен бутон? Натисни „↩ Отмени“.</p>
     <textarea id="m-text">${esc(text)}</textarea>
     <div class="row">
       ${ph?`<button class="b vb" onclick="sendVia('viber')">📋 Копирай + Viber</button>
       <button class="b" onclick="sendVia('sms')">💬 SMS</button>`:''}
       <button class="b" onclick="sendVia('copy')">📋 Само копирай</button>
       <button class="b" onclick="closeSheet()">Готово</button>
+      ${undoBtn()}
     </div>
     ${ph?'<p style="margin-top:8px;">Viber не позволява готов текст – бутонът го копира и отваря чата. Задръж в полето → Постави.</p>':''}`;
   showSheet();
@@ -518,7 +529,7 @@ function card(c,pfx){
       ${claim}
     </div>
     ${scr}
-    <div class="res">${res.map(k=>`<button class="b ${k==='no'?'r-no':''}" onclick="outcome(${c.id},'${k}')">${OUT[k].lbl}</button>`).join('')}</div>
+    <div class="res"><div class="res-lbl">След разговора – как мина?</div>${res.map(k=>`<button class="b ${k==='no'?'r-no':''}" onclick="outcome(${c.id},'${k}')">${OUT[k].lbl}</button>`).join('')}</div>
   </div>`;
 }
 function mailCard(c){
