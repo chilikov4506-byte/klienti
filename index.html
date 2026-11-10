@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ChilikovWeb Hub</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CW Hub">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0b1220;--bg2:#111827;--bg3:#1e293b;--blue:#2563eb;--blue-lt:#3b82f6;--blue-pale:#60a5fa;
+  --white:#f8fafc;--slate:#e2e8f0;--muted:#94a3b8;--subtle:#64748b;
+  --green:#16a34a;--amber:#d97706;--red:#dc2626;--purple:#7c3aed;
+  --border:rgba(37,99,235,.22);--border2:rgba(148,163,184,.12);--r:10px;
+}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--slate);min-height:100vh;padding-bottom:env(safe-area-inset-bottom);}
+a{color:var(--blue-lt);text-decoration:none;}
+.top{position:sticky;top:0;z-index:50;background:rgba(11,18,32,.97);border-bottom:1px solid var(--border);padding:calc(8px + env(safe-area-inset-top)) 14px 0;}
+.top-row{display:flex;align-items:center;gap:10px;}
+.logo{font-weight:700;color:var(--blue-lt);font-size:14px;white-space:nowrap;}
+.logo span{color:var(--white);}
+.me{display:flex;background:var(--bg3);border-radius:20px;padding:3px;margin-left:auto;}
+.me button{background:none;border:none;color:var(--muted);font-size:13px;padding:6px 12px;border-radius:16px;cursor:pointer;font-family:inherit;}
+.me button.on{background:var(--blue);color:#fff;font-weight:600;}
+.sync{font-size:11px;padding:3px 8px;border-radius:10px;white-space:nowrap;cursor:pointer;}
+.s-ok{background:rgba(22,163,74,.18);color:#4ade80;}.s-err{background:rgba(220,38,38,.15);color:#f87171;}.s-load{background:rgba(37,99,235,.2);color:var(--blue-pale);}
+.tabs{display:flex;gap:4px;overflow-x:auto;padding:8px 0;}
+.tab{background:none;border:none;color:var(--muted);font-size:13px;padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.tab.on{background:var(--blue);color:#fff;font-weight:500;}
+.page{display:none;padding:14px;max-width:900px;margin:0 auto;}
+.page.on{display:block;}
+h2{font-size:15px;color:var(--white);margin:18px 0 10px;display:flex;align-items:center;gap:8px;}
+h2 .cnt{font-size:12px;color:var(--muted);font-weight:400;}
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.sum div{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px;text-align:center;}
+.sum b{display:block;font-size:22px;color:var(--white);}
+.sum span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:14px;margin-bottom:10px;}
+.card.hot{border-color:rgba(74,222,128,.45);}
+.c-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+.c-name{font-size:15px;font-weight:600;color:var(--white);}
+.c-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.seg{font-size:11px;padding:3px 8px;border-radius:6px;white-space:nowrap;background:rgba(37,99,235,.18);color:var(--blue-pale);}
+.seg.s-Къщи{background:rgba(22,163,74,.18);color:#86efac;}
+.seg.s-Заведения{background:rgba(217,119,6,.2);color:#fcd34d;}
+.seg.s-Майстори{background:rgba(148,163,184,.18);color:#cbd5e1;}
+.seg.s-Партньор{background:rgba(124,58,237,.22);color:#c4b5fd;}
+.seg.s-Имейл{background:rgba(236,72,153,.18);color:#f9a8d4;}
+.time{font-size:12px;margin-top:8px;color:var(--muted);}
+.time.now{color:#4ade80;font-weight:600;}
+.hook{background:var(--bg3);border-left:3px solid var(--blue);border-radius:0 8px 8px 0;padding:8px 10px;font-size:13px;line-height:1.5;margin-top:8px;color:var(--slate);}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.b{border:1px solid var(--border);background:var(--bg3);color:var(--slate);border-radius:8px;padding:9px 12px;font-size:13px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;}
+.b:active{transform:scale(.97);}
+.b.call{background:var(--green);border-color:var(--green);color:#fff;font-weight:600;}
+.b.pri{background:var(--blue);border-color:var(--blue);color:#fff;}
+.b.vb{background:#7360f2;border-color:#7360f2;color:#fff;}
+.b.sm{padding:6px 10px;font-size:12px;}
+.b.r-no{color:#f87171;}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;}
+.res .b{justify-content:center;padding:10px 6px;font-size:12px;}
+.script{display:none;background:var(--bg3);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:13px;line-height:1.6;}
+.script.on{display:block;}
+.script ol{padding-left:18px;}
+.script li{margin-bottom:6px;}
+.script .obj{margin-top:8px;font-size:12px;color:var(--muted);}
+.script .obj b{color:var(--white);}
+.meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.tag{font-size:11px;padding:2px 7px;border-radius:6px;background:rgba(148,163,184,.14);color:var(--muted);}
+.tag.warn{background:rgba(220,38,38,.15);color:#fca5a5;}
+.empty{text-align:center;color:var(--subtle);font-size:13px;padding:22px;background:var(--bg2);border-radius:12px;border:1px dashed var(--border2);}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:90;display:none;}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:91;background:var(--bg2);border-top:1px solid var(--border);border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));max-width:700px;margin:0 auto;transform:translateY(110%);transition:transform .2s;max-height:88vh;overflow-y:auto;}
+.sheet.on{transform:none;}
+.sheet h3{font-size:15px;color:var(--white);margin-bottom:4px;}
+.sheet p{font-size:12px;color:var(--muted);margin-bottom:10px;}
+textarea,input,select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 10px;font-size:14px;color:var(--white);font-family:inherit;outline:none;}
+textarea{min-height:170px;line-height:1.5;resize:vertical;}
+label{font-size:11px;color:var(--muted);display:block;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.04em;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.f{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:5px 11px;font-size:12px;color:var(--muted);cursor:pointer;font-family:inherit;}
+.f.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{text-align:left;padding:8px;font-size:11px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);}
+td{padding:9px 8px;border-bottom:1px solid var(--border2);vertical-align:top;}
+.tw{overflow-x:auto;background:var(--bg2);border-radius:12px;border:1px solid var(--border2);}
+.st{font-size:11px;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+.st-found{background:rgba(148,163,184,.15);color:var(--muted);}.st-sent,.st-later{background:rgba(37,99,235,.18);color:var(--blue-pale);}
+.st-replied{background:rgba(217,119,6,.2);color:#fcd34d;}.st-interested{background:rgba(22,163,74,.2);color:#86efac;}
+.st-client{background:rgba(124,58,237,.25);color:#c4b5fd;}.st-no{background:rgba(220,38,38,.15);color:#fca5a5;}
+.small{font-size:12px;color:var(--muted);}
+.tpl{background:var(--bg3);border-radius:8px;padding:10px;font-size:13px;line-height:1.55;white-space:pre-wrap;margin:6px 0 12px;}
+details{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+summary{cursor:pointer;font-weight:600;color:var(--white);font-size:14px;}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;z-index:100;opacity:0;transition:opacity .2s;pointer-events:none;}
+.toast.on{opacity:1;}
+@media(max-width:560px){.sum{grid-template-columns:repeat(2,1fr);}.grid2{grid-template-columns:1fr;}.hide-m{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="top-row">
+    <div class="logo">CW <span>Hub</span></div>
+    <span class="sync s-load" id="sync" onclick="pullFromSheets(false)">⟳</span>
+    <div class="me" id="me-switch"></div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-p="today">📞 Днес</button>
+    <button class="tab" data-p="all">📋 Всички</button>
+    <button class="tab" data-p="scripts">💬 Скриптове</button>
+    <button class="tab" data-p="stats">📊 Статистика</button>
+  </div>
+</div>
+
+<!-- ДНЕС -->
+<div class="page on" id="p-today">
+  <div class="sum">
+    <div><b id="s-calls">0</b><span>Обаждания днес</span></div>
+    <div><b id="s-fu">0</b><span>Follow-up</span></div>
+    <div><b id="s-int">0</b><span>Чакат демо</span></div>
+    <div><b id="s-mail">0</b><span>Имейли чакат</span></div>
+  </div>
+  <h2>🔥 За обаждане <span class="cnt" id="c-call"></span></h2>
+  <div id="list-call"></div>
+  <h2>⏰ Follow-up днес <span class="cnt" id="c-fu"></span></h2>
+  <div id="list-fu"></div>
+  <h2>🎨 Заинтересовани – прати демо до 24 ч. <span class="cnt" id="c-int"></span></h2>
+  <div id="list-int"></div>
+  <h2>✉️ Имейл одити (черновите са в Gmail) <span class="cnt" id="c-mail"></span></h2>
+  <div id="list-mail"></div>
+</div>
+
+<!-- ВСИЧКИ -->
+<div class="page" id="p-all">
+  <details id="add-box">
+    <summary>+ Добави контакт ръчно</summary>
+    <div class="grid2">
+      <div><label>Бизнес *</label><input id="a-name"></div>
+      <div><label>Телефон</label><input id="a-phone" inputmode="tel"></div>
+      <div><label>Сегмент</label><select id="a-seg"></select></div>
+      <div><label>Отговорник</label><select id="a-owner"></select></div>
+      <div><label>Град / квартал</label><input id="a-area"></div>
+      <div><label>Ниша</label><input id="a-niche" placeholder="напр. къща за гости"></div>
+    </div>
+    <label>Бележка / кука</label><input id="a-hook">
+    <div class="row"><button class="b pri" onclick="addManual()">+ Добави</button></div>
+  </details>
+  <input id="search" placeholder="Търси по име, град, телефон..." oninput="renderAll()" style="margin-bottom:10px;">
+  <div class="filters" id="f-status"></div>
+  <div class="filters" id="f-seg"></div>
+  <div class="small" id="all-count" style="margin-bottom:8px;"></div>
+  <div class="tw"><table>
+    <thead><tr><th>Бизнес</th><th>Сегмент</th><th class="hide-m">Отг.</th><th>Статус</th><th class="hide-m">Последно</th><th></th></tr></thead>
+    <tbody id="all-body"></tbody>
+  </table></div>
+  <div class="row"><button class="b sm" onclick="exportCSV()">⬇ CSV</button></div>
+</div>
+
+<!-- СКРИПТОВЕ -->
+<div class="page" id="p-scripts">
+  <p class="small" style="margin-top:6px;">Скрипт за разговора + съобщенията, които излизат след всеки бутон. {име} и подписът се попълват автоматично.</p>
+  <div id="scripts-body"></div>
+</div>
+
+<!-- СТАТИСТИКА -->
+<div class="page" id="p-stats">
+  <h2>По седмици</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Седмица</th><th>Контакти</th><th>Отговорили</th><th>Интерес</th><th>Клиенти</th><th>Приход €</th></tr></thead>
+    <tbody id="t-weeks"></tbody>
+  </table></div>
+  <h2>По сегменти (кое работи)</h2>
+  <div class="tw"><table>
+    <thead><tr><th>Сегмент</th><th>Контакти</th><th>Вдигнали</th><th>Интерес</th><th>Клиенти</th><th>Интерес %</th></tr></thead>
+    <tbody id="t-segs"></tbody>
+  </table></div>
+  <h2>По човек</h2>
+  <div class="tw"><table>
+    <thead><tr><th></th><th>Обаждания</th><th>Интерес</th><th>Клиенти</th></tr></thead>
+    <tbody id="t-people"></tbody>
+  </table></div>
+  <p class="small" style="margin-top:10px;">Цел за 2 седмици: 60 обаждания → 6–8 демота → 2–4 поръчки.</p>
+</div>
+
+<!-- ДОЛЕН ПАНЕЛ: резултат от разговора -->
+<div class="sheet-bg" id="sheet-bg" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== НАСТРОЙКИ ===================== */
+const GS_URL='https://script.google.com/macros/s/AKfycby_drB9JTFHuvpyBj0UO6t85DbIqf_SfN0wRuy6Owp-_DmFj2gLrLAlz339Ou4_FtLb/exec';
+const TOKEN='cw-2026';            // същият като TOKEN в Apps Script
+const PEOPLE=['Иво','Вероника'];
+// Демо линкове, които излизат в съобщенията – смени с най-доброто ти демо за всеки сегмент
+const DEMO={
+  'Къщи за гости':'https://chilikov4506-byte.github.io/kashtademo/',
+  'Заведения':'https://chilikov4506-byte.github.io/pribaikosta/',
+  'Майстори':'https://chilikov4506-byte.github.io/handymandemo/',
+  'Партньор':'https://chilikovweb.com',
+  'Друго':'https://chilikovweb.com'
+};
+const LS_KEY='cw_contacts_v3',LT_KEY='cw_tracker_v3',LS_DIRTY='cw_dirty_v4',LS_ME='cw_me';
+
+/* ===================== СЕГМЕНТИ, СКРИПТОВЕ, СЪОБЩЕНИЯ ===================== */
+const SEG={
+ 'Къщи за гости':{cls:'Къщи',icon:'🏡',win:[[11,13],[15,17]],time:'11–13 ч. или 15–17 ч., пн–чт (след освобождаване на стаите)',pkg:'Про 280 € / Про+ 420 €',
+  script:[
+   'Здравейте! Аз съм {аз} от ChilikovWeb, правим сайтове за къщи за гости. Имате ли 1 минута?',
+   'Видях {име} в Google – чудесни отзиви. Резервациите ви през Booking ли идват основно?',
+   'Booking взема около 15–18% от всяка нощувка. Правим сайт с директни резервации – гостът записва дата, вие получавате имейл, без комисионна. Изплаща се от 1–2 уикенда.',
+   'Предлагам ви безплатен примерен дизайн за {име} – виждате го до 2 дни, плащате само ако ви хареса. Да ви го направя ли? Мога ли да ви пиша във Viber на този номер?'],
+  obj:[['„Booking ми стига“','Не махаме Booking – сайтът е за редовните гости и тези от Google. Всяка директна резервация е +15% за вас.'],
+       ['„Скъпо е“','280 € еднократно с 1 година поддръжка. Това е комисионната от 2–3 нощувки.'],
+       ['„Нямам време“','От вас – 10 снимки и цени. Всичко друго е мое, готово за 5 работни дни.']]},
+ 'Заведения':{cls:'Заведения',icon:'🍽',win:[[15,17]],time:'15–17 ч., пн–чт (никога 12–14 и вечер)',pkg:'Про+ 420 €',
+  script:[
+   'Здравейте, аз съм {аз} от ChilikovWeb. Говоря ли със собственика/управителя на {име}?',
+   'Видях, че имате много добри отзиви. Менюто ви онлайн ли е или клиентите питат по телефона?',
+   'Правим сайт, в който дневното меню и цените ги сменяте сами от телефона за секунди – през проста таблица. Плюс форма за резервации за коледни партита.',
+   'Мога да ви направя безплатен примерен дизайн с вашето меню – виждате го до 2 дни. Да ви пиша ли във Viber?'],
+  obj:[['„Имаме Facebook“','Facebook не излиза в Google при „ресторант + град“. Сайтът излиза, а менюто е винаги актуално.'],
+       ['„Имаме Glovo“','Glovo взема 25–30%. Сайтът носи директни поръчки и резервации без комисионна.'],
+       ['„Скъпо е“','420 € с лого, визитки и 1 година поддръжка – по-малко от една седмица комисионни.']]},
+ 'Майстори':{cls:'Майстори',icon:'🔧',win:[[7.5,8.5],[17.5,19]],time:'7:30–8:30 или 17:30–19 ч. (през деня са на обект)',pkg:'Старт 150 € / Про 280 €',
+  script:[
+   'Здравейте, аз съм {аз} от ChilikovWeb. Само 30 секунди – удобно ли е?',
+   'Видях {име} в Google Maps – {отзиви} отзива, явно работите добре. Но нямате сайт, а точно сега хората търсят „{ниша}“ в Google.',
+   'Правим сайт-визитка за майстори: услуги, градове, снимки от обекти, телефон с един бутон. От 150 €, готов за 5 работни дни.',
+   'Първо ви правя безплатен примерен дизайн – плащате само ако ви хареса. Да ви го пратя ли във Viber на този номер?'],
+  obj:[['„Работа имам достатъчно“','Сайтът ви позволява да избирате по-добрите поръчки и да вдигнете цената.'],
+       ['„Имам Facebook“','При търсене в Google излизат сайтовете, не Facebook страниците.'],
+       ['„Нямам време“','От вас – 5 снимки и списък услуги. Аз правя всичко останало.']]},
+ 'Партньор':{cls:'Партньор',icon:'🤝',win:[[10,12]],time:'10–12 ч. (счетоводители – избягвай 10–14-то число и края на месеца)',pkg:'15% комисионна',
+  script:[
+   'Здравейте, аз съм {аз} от ChilikovWeb – правим сайтове за малки фирми в региона.',
+   'Работите с много малки фирми всеки ден. Често ли ви питат за сайт или онлайн присъствие?',
+   'Имаме партньорска програма: препоръчвате ни клиент, правим му безплатен примерен дизайн и ако поръча, получавате 15% от сумата (пакетите са 150–420 €). Изплаща се след като клиентът плати.',
+   'Да ви пратя ли кратко описание във Viber, което можете да препращате на клиенти?'],
+  obj:[['„Нямам време да продавам“','Не продавате – само давате телефона ми. Всичко друго е мое.'],
+       ['„Колко изкарвам?“','От 22 до 63 € на клиент. 3 препоръки на месец = ~150 € без усилие.']]},
+ 'Имейл одит':{cls:'Имейл',icon:'✉️',win:[],time:'Имейл – черновата е в Gmail',pkg:'SEO / скорост / нов сайт',script:[],obj:[]},
+ 'Друго':{cls:'',icon:'•',win:[[10,12],[15,17]],time:'10–12 ч. или 15–17 ч.',pkg:'',script:['Здравейте, аз съм {аз} от ChilikovWeb…'],obj:[]}
+};
+
+// Съобщения след резултата от разговора
+const MSG={
+ noanswer:{
+  'Къщи за гости':'Здравейте! Аз съм {аз} от ChilikovWeb, търсих ви по телефона.\n\nПравим сайтове за къщи за гости с директни резервации – без 15–18% комисионна към Booking. Мога да ви направя безплатен примерен дизайн за {име} преди новогодишните резервации, без ангажимент.\n\nКога е удобно да се чуем?',
+  'Заведения':'Здравейте! Аз съм {аз} от ChilikovWeb, търсих ви по телефона.\n\nПравим сайтове за заведения с дневно меню, което сменяте сами от телефона за секунди, плюс резервации за коледни партита. Мога да ви направя безплатен примерен дизайн за {име}.\n\nКога е удобно да се чуем?',
+  'Майстори':'Здравейте! Аз съм {аз} от ChilikovWeb, търсих ви.\n\nВидях {име} в Google Maps – добри отзиви, но нямате сайт, а точно сега хората търсят „{ниша}“ в Google. Правим сайтове за майстори от 150 €, първо виждате безплатен примерен дизайн.\n\nИнтересува ли ви?',
+  'Партньор':'Здравейте! Аз съм {аз} от ChilikovWeb, търсих ви.\n\nПравим сайтове за малки фирми и търсим партньори: за всеки препоръчан клиент получавате 15% от поръчката, изплаща се след като клиентът плати. Мисля, че е подходящо за вас, защото работите с много фирми.\n\nУдобно ли е да се чуем утре?',
+  'Друго':'Здравейте! Аз съм {аз} от ChilikovWeb, търсих ви по телефона. Правим сайтове за малки бизнеси – първо виждате безплатен примерен дизайн. Кога е удобно да се чуем?'
+ },
+ interested:{
+  'Къщи за гости':'Благодаря за разговора! 🙂\n\nЗапочвам безплатния примерен дизайн за {име}. Ще ми помогнете, ако изпратите тук:\n• 5–10 снимки (стаи, двор, гледка)\n• цени по сезони\n• с какво сте най-горди (механа, басейн, тишина…)\n\nДо 48 ч. ви пращам линк.\n\n{подпис}',
+  'Заведения':'Благодаря за разговора! 🙂\n\nЗапочвам безплатния примерен дизайн за {име}. Изпратете ми тук:\n• менюто (и снимка става)\n• 3–5 снимки на храна/заведението\n• лого, ако имате\n\nДо 48 ч. ви пращам линк.\n\n{подпис}',
+  'Майстори':'Благодаря за разговора! 🙂\n\nЗапочвам безплатния примерен дизайн. Изпратете ми тук:\n• какви услуги предлагате\n• в кои градове/квартали работите\n• 3–5 снимки от обекти\n\nДо 48 ч. ви пращам линк.\n\n{подпис}',
+  'Партньор':'Благодаря за разговора! 🙂\n\nНакратко как работи:\n1. Препоръчвате ни фирма (само името и телефона)\n2. Правим ѝ безплатен примерен дизайн\n3. Ако поръча, получавате 15% (пакетите са 150–420 €)\n\nТова можете да препращате на клиенти: chilikovweb.com\n\n{подпис}',
+  'Друго':'Благодаря за разговора! Започвам безплатния примерен дизайн за {име}. Изпратете ми снимки и кратко описание на услугите – до 48 ч. ви пращам линк.\n\n{подпис}'
+ },
+ lukewarm:{
+  'Къщи за гости':'Благодаря за времето!\n\nЕто как изглежда сайт с директни резервации: {демо}\n\nПакет „Про“ – 280 €: сайт + собствено онлайн записване + 1 година поддръжка. Примерният дизайн е безплатен – ако решите, просто ми пишете.\n\n{подпис}',
+  'Заведения':'Благодаря за времето!\n\nЕто пример: {демо}\n\nПакет „Про+“ – 420 €: до 3 страници, меню, което сменяте от телефона, лого + визитки и 1 година поддръжка. Примерният дизайн е безплатен.\n\n{подпис}',
+  'Майстори':'Благодаря за времето!\n\nЕто пример: {демо}\n\nСайт „Старт“ – 150 €, готов за 5 работни дни, с 1 месец безплатни промени. Примерният дизайн е безплатен – ако не ви хареса, не дължите нищо.\n\n{подпис}',
+  'Партньор':'Благодаря за времето! Ако някой ваш клиент попита за сайт – дайте му моя телефон. За всяка поръчка получавате 15%.\n\n{подпис}',
+  'Друго':'Благодаря за времето! Ето пример: {демо}. Примерният дизайн е безплатен – ако решите, пишете ми.\n\n{подпис}'
+ },
+ no:{
+  'Друго':'Благодаря за времето и успешен сезон! Ако някой ваш познат има нужда от сайт, ще се радвам на препоръка.\n\n{подпис}'
+ }
+};
+const SL={found:'Нов',later:'Звънни пак',sent:'Писано',replied:'Слаб интерес',interested:'Интерес',client:'Клиент ✓',no:'Отказ'};
+
+/* ===================== ПОМОЩНИ ===================== */
+let me=null;try{me=localStorage.getItem(LS_ME);}catch(e){}
+if(!PEOPLE.includes(me))me=PEOPLE[0];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const segOf=c=>SEG[c.segment]?c.segment:'Друго';
+const todayStr=()=>new Date().toLocaleDateString('bg-BG');
+function toast(t){const el=$('toast');el.textContent=t;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1800);}
+function intlPhone(p){let d=String(p||'').replace(/\D/g,'');if(!d)return '';if(d.startsWith('00'))d=d.slice(2);if(d.startsWith('359'))return d;if(d.startsWith('0'))d=d.slice(1);return '359'+d;}
+function fill(t,c){
+  const s=segOf(c);
+  return String(t)
+    .replace(/{име}/g,c.name||'').replace(/{аз}/g,me)
+    .replace(/{ниша}/g,c.niche||'').replace(/{отзиви}/g,(c.reviews||'').replace('+',' и повече'))
+    .replace(/{демо}/g,DEMO[s]||DEMO['Друго']).replace(/{подпис}/g,me+', ChilikovWeb');
+}
+function inWindow(c){
+  const w=SEG[segOf(c)].win;const d=new Date();const h=d.getHours()+d.getMinutes()/60;
+  return w.some(([a,b])=>h>=a&&h<b);
+}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);return true;}
+  catch(e){const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(_){}ta.remove();return true;}
+}
+
+/* ===================== ДАННИ + СИНХРОНИЗАЦИЯ ===================== */
+let contacts=[],wdata=[];
+let isSyncing=false,pendingPush=false,dirty=new Set(),deletedIds=new Set();
+try{const d=JSON.parse(localStorage.getItem(LS_DIRTY)||'{}');(d.dirty||[]).forEach(x=>dirty.add(String(x)));(d.del||[]).forEach(x=>deletedIds.add(String(x)));}catch(e){}
+
+function saveLocal(){try{
+  localStorage.setItem(LS_KEY,JSON.stringify(contacts));localStorage.setItem(LT_KEY,JSON.stringify(wdata));
+  localStorage.setItem(LS_DIRTY,JSON.stringify({dirty:[...dirty],del:[...deletedIds]}));}catch(e){}}
+function loadLocal(){
+  try{contacts=JSON.parse(localStorage.getItem(LS_KEY)||'[]').map(normContact);}catch(e){contacts=[];}
+  try{wdata=JSON.parse(localStorage.getItem(LT_KEY)||'[]').map(normTracker);}catch(e){wdata=[];}
+}
+function touch(c){c.updatedAt=Date.now();dirty.add(String(c.id));}
+function setSync(st,t){const el=$('sync');el.className='sync s-'+st;el.textContent=t;}
+
+function fixPhone(v){if(v==null||v==='')return '';let s=String(v).trim();if(/^\d+$/.test(s)){if(s.startsWith('359'))s='0'+s.slice(3);else if(s.length===9)s='0'+s;}return s;}
+function fixRating(v){if(v==null||v==='')return '';const s=String(v).trim();if(s==='под 4.0')return s;const n=parseFloat(s.replace(',','.'));if(isNaN(n))return s;return n<4?'под 4.0':n.toFixed(1);}
+function normContact(c){
+  return {id:Number(c.id)||Date.now(),name:String(c.name||''),niche:String(c.niche||''),channel:String(c.channel||'Телефон'),
+    phone:fixPhone(c.phone),area:String(c.area||''),online:String(c.online||''),rating:fixRating(c.rating),reviews:String(c.reviews||''),
+    status:c.status||'found',date:String(c.date||''),fuDate:String(c.fuDate||''),note:String(c.note||''),link:String(c.link||''),
+    fuTs:Number(c.fuTs)||0,updatedAt:Number(c.updatedAt)||0,
+    segment:String(c.segment||''),owner:String(c.owner||''),email:String(c.email||''),site:String(c.site||''),
+    psi:String(c.psi||''),hook:String(c.hook||''),lastResult:String(c.lastResult||''),calls:Number(c.calls)||0};
+}
+function normTracker(r){return {dm:Number(r.dm)||0,reply:Number(r.reply)||0,lead:Number(r.lead)||0,client:Number(r.client)||0,rev:Number(r.rev)||0};}
+
+function applyServer(list){
+  const local={};contacts.forEach(c=>local[String(c.id)]=c);
+  const out=list.map(normContact).filter(c=>!deletedIds.has(String(c.id)));
+  const ids=new Set();
+  out.forEach(c=>{let id=String(c.id);if(ids.has(id)){let n=Date.now();while(ids.has(String(n)))n++;c.id=n;id=String(n);touch(c);}ids.add(id);});
+  const seen=new Set(out.map(c=>String(c.id)));
+  out.forEach((c,i)=>{const id=String(c.id),l=local[id];if(l&&(dirty.has(id)||Number(l.updatedAt||0)>Number(c.updatedAt||0)))out[i]=l;});
+  contacts.filter(c=>dirty.has(String(c.id))&&!seen.has(String(c.id))).forEach(c=>out.unshift(c));
+  contacts=out;
+}
+async function postJSON(body){
+  body.k=TOKEN;
+  const r=await fetch(GS_URL,{method:'POST',body:JSON.stringify(body),headers:{'Content-Type':'text/plain'}});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  if(!j||j.ok===false)throw new Error((j&&j.error)||'save failed');
+  return j;
+}
+async function pushToSheets(){
+  saveLocal();
+  if(isSyncing){pendingPush=true;return;}
+  if(!dirty.size&&!deletedIds.size)return;
+  isSyncing=true;setSync('load','⟳ Запазва');
+  try{
+    do{
+      pendingPush=false;
+      const ids=[...dirty],dels=[...deletedIds];
+      const send=contacts.filter(c=>ids.includes(String(c.id)));
+      dirty.clear();deletedIds.clear();
+      try{const j=await postJSON({action:'upsert',contacts:send,deleted:dels});
+        if(j&&Array.isArray(j.contacts)){applyServer(j.contacts);renderAllPages();}}
+      catch(e){ids.forEach(x=>dirty.add(x));dels.forEach(x=>deletedIds.add(x));throw e;}
+      saveLocal();
+    }while(pendingPush&&(dirty.size||deletedIds.size));
+    setSync('ok','✓');
+  }catch(e){saveLocal();setSync('err','✗ офлайн');}
+  finally{isSyncing=false;}
+}
+async function pushTracker(){saveLocal();try{await postJSON({action:'save_tracker',tracker:wdata});}catch(e){setSync('err','✗');}}
+
+async function pullFromSheets(quiet){
+  if(isSyncing)return;
+  if(!quiet)setSync('load','⟳');
+  try{
+    if(dirty.size||deletedIds.size)await pushToSheets();
+    const data=await (await fetch(GS_URL+'?k='+TOKEN+'&t='+Date.now())).json();
+    if(data.ok===false)throw new Error(data.error);
+    if(Array.isArray(data.contacts)&&(data.contacts.length||!contacts.length))applyServer(data.contacts);
+    if(Array.isArray(data.tracker)&&data.tracker.length)wdata=data.tracker.map(normTracker);
+    saveLocal();
+    setSync('ok','✓ '+new Date().toLocaleTimeString('bg-BG',{hour:'2-digit',minute:'2-digit'}));
+    renderAllPages();
+  }catch(e){setSync('err','✗ офлайн');return;}
+  if(!quiet)await importLeads();
+}
+
+async function importLeads(){
+  try{
+    const data=await (await fetch(GS_URL+'?action=leads&k='+TOKEN+'&t='+Date.now())).json();
+    const leads=data.leads||[];if(!leads.length)return;
+    const norm=s=>(s||'').toLowerCase().trim();
+    const links=new Set(contacts.map(c=>c.link).filter(Boolean)),names=new Set(contacts.map(c=>norm(c.name)));
+    const base=Date.now();let added=0;
+    leads.forEach((l,i)=>{
+      if((l.link&&links.has(l.link))||names.has(norm(l.name)))return;
+      const c=normContact({id:base+i,name:l.name,niche:l.niche,channel:l.channel||'Телефон',phone:l.phone,area:l.area,
+        online:l.online,rating:l.rating,reviews:l.reviews,status:'found',link:l.link,note:l.note,date:l.date||todayStr(),
+        segment:l.segment,owner:l.owner,email:l.email,site:l.site,psi:l.psi,hook:l.hook});
+      contacts.unshift(c);touch(c);links.add(l.link);names.add(norm(l.name));added++;
+    });
+    if(added){renderAllPages();await pushToSheets();toast('+'+added+' нови лийда');}
+    await postJSON({action:'mark',ids:leads.map(l=>l.placeId)});
+  }catch(e){console.warn('Импорт:',e);}
+}
+
+/* ===================== РЕЗУЛТАТ ОТ РАЗГОВОРА ===================== */
+const OUT={
+  noanswer:{lbl:'📵 Не вдигна',status:'sent',fu:48,msg:'noanswer'},
+  later:{lbl:'🔁 Звънни пак',status:'later',fu:0,msg:null},
+  interested:{lbl:'✅ Интерес',status:'interested',fu:24,msg:'interested'},
+  lukewarm:{lbl:'🤔 Слаб интерес',status:'replied',fu:168,msg:'lukewarm'},
+  no:{lbl:'❌ Отказ',status:'no',fu:0,msg:'no'},
+  client:{lbl:'💰 Клиент',status:'client',fu:0,msg:null}
+};
+let cur=null;
+
+function outcome(id,key){
+  const c=contacts.find(x=>x.id===id);if(!c)return;
+  const o=OUT[key];cur={c,key};
+  if(key==='later'){openLater(c);return;}
+  if(key==='client'){
+    const v=prompt('Сума на поръчката в € (за статистиката):','280');
+    applyOutcome(c,key,0);
+    const amt=Number(v)||0;if(amt){const i=weekIdx(new Date());while(wdata.length<i+1)wdata.push(normTracker({}));wdata[i].rev+=amt;pushTracker();}
+    toast('🎉 Браво!');return;
+  }
+  // вторият „Не вдигна“ подред → follow-up след 4 дни
+  let fu=o.fu;if(key==='noanswer'&&c.lastResult==='noanswer')fu=96;
+  applyOutcome(c,key,fu);
+  const s=segOf(c);const tpl=(MSG[o.msg]&&(MSG[o.msg][s]||MSG[o.msg]['Друго']))||'';
+  openMsg(c,fill(tpl,c),o.lbl,fu);
+}
+function applyOutcome(c,key,fuHrs){
+  const o=OUT[key];const now=Date.now();
+  if(c.status==='found')c.date=todayStr();
+  c.status=o.status;c.lastResult=key;c.calls=(c.calls||0)+1;
+  if(!c.owner)c.owner=me;
+  if(fuHrs){c.fuTs=now+fuHrs*3600000;c.fuDate=new Date(c.fuTs).toLocaleDateString('bg-BG');}else{c.fuTs=0;c.fuDate='';}
+  const d=new Date().toLocaleDateString('bg-BG',{day:'2-digit',month:'2-digit'});
+  c.note=(d+' '+me+': '+o.lbl.replace(/^\S+\s/,'')+(c.note?' · '+c.note:'')).slice(0,400);
+  touch(c);renderAllPages();pushToSheets();
+}
+function openMsg(c,text,lbl,fu){
+  const ph=intlPhone(c.phone);
+  $('sheet').innerHTML=`
+    <h3>${esc(lbl)} · ${esc(c.name)}</h3>
+    <p>${fu?'Follow-up: '+esc(c.fuDate)+' · ':''}Редактирай при нужда и изпрати.</p>
+    <textarea id="m-text">${esc(text)}</textarea>
+    <div class="row">
+      ${ph?`<button class="b vb" onclick="sendVia('viber')">📋 Копирай + Viber</button>
+      <button class="b" onclick="sendVia('sms')">💬 SMS</button>`:''}
+      <button class="b" onclick="sendVia('copy')">📋 Само копирай</button>
+      <button class="b" onclick="closeSheet()">Готово</button>
+    </div>
+    ${ph?'<p style="margin-top:8px;">Viber не позволява готов текст – бутонът го копира и отваря чата. Задръж в полето → Постави.</p>':''}`;
+  showSheet();
+}
+async function sendVia(how){
+  const t=$('m-text').value;const ph=intlPhone(cur.c.phone);
+  await copyText(t);
+  if(how==='viber')location.href='viber://chat?number=%2B'+ph;
+  else if(how==='sms')location.href='sms:+'+ph+(/iPhone|iPad/.test(navigator.userAgent)?'&':'?')+'body='+encodeURIComponent(t);
+  else toast('Копирано');
+}
+function openLater(c){
+  $('sheet').innerHTML=`<h3>🔁 Кога да звъннем пак на ${esc(c.name)}?</h3><p>Ще излезе във „Follow-up днес“.</p>
+    <div class="row">
+      <button class="b pri" onclick="setLater(2)">След 2 ч.</button>
+      <button class="b pri" onclick="setLater(20)">Утре</button>
+      <button class="b pri" onclick="setLater(72)">След 3 дни</button>
+      <button class="b pri" onclick="setLater(168)">След седмица</button>
+      <button class="b" onclick="closeSheet()">Отказ</button>
+    </div>`;
+  showSheet();
+}
+function setLater(h){applyOutcome(cur.c,'later',h);closeSheet();toast('Напомняне: '+cur.c.fuDate);}
+function showSheet(){$('sheet-bg').style.display='block';requestAnimationFrame(()=>$('sheet').classList.add('on'));}
+function closeSheet(){$('sheet').classList.remove('on');setTimeout(()=>$('sheet-bg').style.display='none',200);}
+
+function takeLead(id){const c=contacts.find(x=>x.id===id);if(!c)return;c.owner=me;touch(c);renderAllPages();pushToSheets();}
+function mailDone(id,st){const c=contacts.find(x=>x.id===id);if(!c)return;
+  if(c.status==='found')c.date=todayStr();
+  c.status=st;c.lastResult=st==='sent'?'mail':'mail-reply';c.owner=c.owner||me;
+  if(st==='sent'){c.fuTs=Date.now()+96*3600000;c.fuDate=new Date(c.fuTs).toLocaleDateString('bg-BG');}else{c.fuTs=0;c.fuDate='';}
+  touch(c);renderAllPages();pushToSheets();}
+function toggleScript(id){$('sc-'+id).classList.toggle('on');}
+
+/* ===================== ДНЕС ===================== */
+function card(c,pfx){
+  pfx=pfx||'';
+  const s=segOf(c),S=SEG[s],now=inWindow(c),ph=intlPhone(c.phone);
+  const isPartner=s==='Партньор';
+  const meta=[c.area,c.niche,c.rating?c.rating+'★':'',c.reviews?c.reviews+' отзива':'',c.online].filter(Boolean).map(x=>`<span class="tag">${esc(x)}</span>`).join('');
+  const prev=c.lastResult&&c.note?`<div class="small" style="margin-top:6px;">🕑 ${esc(c.note.split(' · ')[0])}</div>`:'';
+  const scr=S.script.length?`<div class="script" id="sc-${pfx}${c.id}"><ol>${S.script.map(l=>`<li>${esc(fill(l,c))}</li>`).join('')}</ol>
+    ${S.obj.map(([q,a])=>`<div class="obj"><b>${esc(q)}</b> → ${esc(a)}</div>`).join('')}</div>`:'';
+  const res=isPartner
+    ?['noanswer','later','interested','lukewarm','no']
+    :['noanswer','later','interested','lukewarm','no','client'];
+  const claim=!c.owner?`<button class="b sm" onclick="takeLead(${c.id})">✋ Вземи</button>`:'';
+  return `<div class="card ${now?'hot':''}">
+    <div class="c-head">
+      <div><div class="c-name">${c.link?`<a href="${esc(c.link)}" target="_blank">${esc(c.name)}</a>`:esc(c.name)}</div>
+        <div class="c-sub">${esc(c.phone||'няма телефон')}${c.owner?' · '+esc(c.owner):''}</div></div>
+      <span class="seg s-${S.cls}">${S.icon} ${esc(s)}</span>
+    </div>
+    <div class="meta">${meta}</div>
+    <div class="time ${now?'now':''}">⏰ ${now?'Сега е добро време! · ':''}${esc(S.time)} · ${esc(S.pkg)}</div>
+    ${c.hook?`<div class="hook">🎯 ${esc(c.hook)}</div>`:''}
+    ${prev}
+    <div class="row">
+      ${ph?`<a class="b call" href="tel:+${ph}">📞 Обади се</a>`:''}
+      ${scr?`<button class="b" onclick="toggleScript('${pfx}${c.id}')">📄 Скрипт</button>`:''}
+      ${claim}
+    </div>
+    ${scr}
+    <div class="res">${res.map(k=>`<button class="b ${k==='no'?'r-no':''}" onclick="outcome(${c.id},'${k}')">${OUT[k].lbl}</button>`).join('')}</div>
+  </div>`;
+}
+function mailCard(c){
+  return `<div class="card">
+    <div class="c-head"><div><div class="c-name">${c.site?`<a href="${esc(c.site)}" target="_blank">${esc(c.name)}</a>`:esc(c.name)}</div>
+      <div class="c-sub">${esc(c.email)} · ${esc(c.area)}</div></div>
+      <span class="seg s-Имейл">✉️ ${c.psi?esc(c.psi)+'/100':'одит'}</span></div>
+    ${c.hook?`<div class="hook">${esc(c.hook)}</div>`:''}
+    <div class="row">
+      <a class="b" href="https://mail.google.com/mail/u/0/#drafts" target="_blank">📝 Черновите в Gmail</a>
+      <button class="b pri" onclick="mailDone(${c.id},'sent')">✓ Изпратих</button>
+      <button class="b" onclick="mailDone(${c.id},'interested')">💬 Отговориха</button>
+      ${c.phone?`<a class="b" href="tel:+${intlPhone(c.phone)}">📞</a>`:''}
+    </div></div>`;
+}
+function renderToday(){
+  const eod=new Date();eod.setHours(23,59,59,999);
+  // мои = разпределени на мен + нови от кампанията без отговорник (старите барбери/салони са само във „Всички“)
+  const mine=c=>c.owner===me||(!c.owner&&!!c.segment);
+  const isMail=c=>c.channel==='Имейл'||c.segment==='Имейл одит';
+  const toCall=contacts.filter(c=>c.status==='found'&&!isMail(c)&&mine(c))
+    .sort((a,b)=>(!a.owner)-(!b.owner)||(segOf(a)==='Партньор')-(segOf(b)==='Партньор')||(inWindow(b)-inWindow(a))||b.id-a.id);
+  const fu=contacts.filter(c=>c.fuTs>0&&c.fuTs<=eod.getTime()&&!['client','no','interested'].includes(c.status)&&mine(c)&&!isMail(c))
+    .sort((a,b)=>a.fuTs-b.fuTs);
+  const ints=contacts.filter(c=>c.status==='interested'&&mine(c)).sort((a,b)=>a.fuTs-b.fuTs);
+  const mails=contacts.filter(c=>isMail(c)&&c.status==='found');
+  const callsToday=contacts.filter(c=>c.calls>0&&c.date===todayStr()&&c.owner===me).length;
+  $('s-calls').textContent=callsToday+'/3';$('s-fu').textContent=fu.length;$('s-int').textContent=ints.length;$('s-mail').textContent=mails.length;
+  $('c-call').textContent=toCall.length?'('+toCall.length+')':'';$('c-fu').textContent=fu.length?'('+fu.length+')':'';
+  $('c-int').textContent=ints.length?'('+ints.length+')':'';$('c-mail').textContent=mails.length?'('+mails.length+')':'';
+  $('list-call').innerHTML=toCall.length?toCall.map(c=>card(c)).join(''):'<div class="empty">Няма нови за обаждане. Новите идват всеки делничен ден около 07:00.</div>';
+  $('list-fu').innerHTML=fu.length?fu.map(c=>card(c)).join(''):'<div class="empty">Няма follow-up за днес.</div>';
+  $('list-int').innerHTML=ints.length?ints.map(c=>card(c)).join(''):'<div class="empty">Още няма – първото „Да“ идва 🙂</div>';
+  $('list-mail').innerHTML=mails.length?mails.slice(0,15).map(mailCard).join(''):'<div class="empty">Няма нови имейл одити.</div>';
+}
+
+/* ===================== ВСИЧКИ ===================== */
+let fStatus='all',fSeg='all';
+function renderFilters(){
+  const st=[['all','Всички'],['found','Нови'],['later','Звънни пак'],['sent','Писано'],['replied','Слаб интерес'],['interested','Интерес'],['client','Клиенти'],['no','Отказ'],['mine','Мои']];
+  $('f-status').innerHTML=st.map(([k,v])=>`<button class="f ${fStatus===k?'on':''}" onclick="fStatus='${k}';renderFilters();renderAll()">${v}</button>`).join('');
+  $('f-seg').innerHTML=['all',...Object.keys(SEG)].map(k=>`<button class="f ${fSeg===k?'on':''}" onclick="fSeg='${k}';renderFilters();renderAll()">${k==='all'?'Всички сегменти':SEG[k].icon+' '+k}</button>`).join('');
+}
+function renderAll(){
+  const q=($('search').value||'').toLowerCase();
+  const list=contacts.filter(c=>{
+    const hay=[c.name,c.area,c.phone,c.note,c.niche,c.email].join(' ').toLowerCase();
+    if(q&&!hay.includes(q))return false;
+    if(fStatus==='mine'){if(c.owner!==me)return false;}else if(fStatus!=='all'&&c.status!==fStatus)return false;
+    if(fSeg!=='all'&&segOf(c)!==fSeg)return false;
+    return true;
+  });
+  $('all-count').textContent=list.length+' от '+contacts.length;
+  $('all-body').innerHTML=list.slice(0,300).map(c=>{const s=segOf(c);return `<tr>
+    <td><b style="color:var(--white)">${c.link?`<a href="${esc(c.link)}" target="_blank">${esc(c.name)}</a>`:esc(c.name)}</b><div class="small">${esc(c.area)} ${c.phone?'· '+esc(c.phone):''}</div></td>
+    <td><span class="seg s-${SEG[s].cls}">${SEG[s].icon}</span></td>
+    <td class="hide-m small">${esc(c.owner||'—')}</td>
+    <td><select onchange="setStatus(${c.id},this.value)" style="padding:4px;font-size:12px;width:auto;">${Object.entries(SL).map(([k,v])=>`<option value="${k}" ${c.status===k?'selected':''}>${v}</option>`).join('')}</select>${c.fuDate?`<div class="small">⏰ ${esc(c.fuDate)}</div>`:''}</td>
+    <td class="hide-m small" style="max-width:220px;">${esc((c.note||'').slice(0,90))}</td>
+    <td><button class="b sm" onclick="openCard(${c.id})">⋯</button></td></tr>`;}).join('')||'<tr><td colspan="6" class="empty">Няма резултати</td></tr>';
+}
+function setStatus(id,v){const c=contacts.find(x=>x.id===id);if(!c)return;if(c.status==='found'&&v!=='found')c.date=todayStr();c.status=v;if(['client','no','found'].includes(v)){c.fuTs=0;c.fuDate='';}touch(c);renderAllPages();pushToSheets();}
+function openCard(id){
+  const c=contacts.find(x=>x.id===id);if(!c)return;cur={c};
+  $('sheet').innerHTML=card(c,'m')+`<label>Бележка</label><textarea id="e-note" style="min-height:80px;">${esc(c.note)}</textarea>
+    <div class="grid2"><div><label>Телефон</label><input id="e-phone" value="${esc(c.phone)}"></div>
+    <div><label>Отговорник</label><select id="e-owner">${['',...PEOPLE].map(p=>`<option ${c.owner===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
+    <div class="row"><button class="b pri" onclick="saveCard(${c.id})">✓ Запази</button><button class="b r-no" onclick="delContact(${c.id})">🗑 Изтрий</button><button class="b" onclick="closeSheet()">Затвори</button></div>`;
+  showSheet();
+}
+function saveCard(id){const c=contacts.find(x=>x.id===id);if(!c)return;c.note=$('e-note').value.trim();c.phone=$('e-phone').value.trim();c.owner=$('e-owner').value;touch(c);closeSheet();renderAllPages();pushToSheets();}
+function delContact(id){if(!confirm('Да изтрия ли контакта?'))return;contacts=contacts.filter(c=>c.id!==id);dirty.delete(String(id));deletedIds.add(String(id));closeSheet();renderAllPages();pushToSheets();}
+function addManual(){
+  const name=$('a-name').value.trim();if(!name){$('a-name').focus();return;}
+  const c=normContact({id:Date.now(),name,phone:$('a-phone').value.trim(),segment:$('a-seg').value,owner:$('a-owner').value,
+    area:$('a-area').value.trim(),niche:$('a-niche').value.trim(),hook:$('a-hook').value.trim(),status:'found',date:todayStr(),channel:'Телефон'});
+  contacts.unshift(c);touch(c);['a-name','a-phone','a-area','a-niche','a-hook'].forEach(i=>$(i).value='');
+  renderAllPages();pushToSheets();toast('Добавен');
+}
+function exportCSV(){
+  const H=['Бизнес','Сегмент','Отговорник','Телефон','Имейл','Град','Статус','Дата','Follow-up','Бележка','Линк'];
+  const rows=[H,...contacts.map(c=>[c.name,segOf(c),c.owner,c.phone,c.email,c.area,SL[c.status]||c.status,c.date,c.fuDate,c.note,c.link])];
+  const csv=rows.map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='chilikovweb-kontakti.csv';a.click();
+}
+
+/* ===================== СКРИПТОВЕ ===================== */
+function renderScripts(){
+  const demo={name:'[Бизнес]',niche:'[ниша]',reviews:'[брой]',segment:''};
+  $('scripts-body').innerHTML=Object.keys(SEG).filter(s=>s!=='Друго'&&s!=='Имейл одит').map(s=>{
+    const S=SEG[s];const c={...demo,segment:s};
+    const m=k=>MSG[k][s]||MSG[k]['Друго'];
+    return `<details><summary>${S.icon} ${s} <span class="small">· ${esc(S.pkg)}</span></summary>
+      <p class="small" style="margin:8px 0;">⏰ ${esc(S.time)}</p>
+      <div class="tpl"><b>Разговор</b>\n${S.script.map((l,i)=>(i+1)+'. '+fill(l,c)).join('\n')}</div>
+      ${S.obj.map(([q,a])=>`<div class="small" style="margin-bottom:6px;"><b style="color:var(--white)">${esc(q)}</b> → ${esc(a)}</div>`).join('')}
+      <div class="small" style="margin-top:10px;">📵 Не вдигна → Viber/SMS:</div><div class="tpl">${esc(fill(m('noanswer'),c))}</div>
+      <div class="small">✅ Интерес → Viber:</div><div class="tpl">${esc(fill(m('interested'),c))}</div>
+      <div class="small">🤔 Слаб интерес → Viber:</div><div class="tpl">${esc(fill(m('lukewarm'),c))}</div>
+      <div class="small">❌ Отказ → Viber (по желание):</div><div class="tpl">${esc(fill(m('no'),c))}</div>
+    </details>`;}).join('')+
+    `<details><summary>📋 Правила на кампанията</summary><div class="tpl">• Всеки: 3 обаждания на ден (2 бизнеса + понякога 1 партньор).
+• Обаждай се в посочения час – зелената карта = сега е добро време.
+• „Интерес“ = демо до 24–48 ч. Това решава продажбата.
+• Не вдигна 2 пъти → само Viber, следващо обаждане след 4 дни.
+• Не повече от 3 опита към един бизнес.
+• Имейл одитите: прегледай черновата в Gmail → Изпрати → натисни „✓ Изпратих“.</div></details>`;
+}
+
+/* ===================== СТАТИСТИКА ===================== */
+const TRACK_START=new Date(2026,8,28);
+function parseBgDate(s){const m=String(s||'').match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);return m?new Date(+m[3],+m[2]-1,+m[1]):null;}
+function weekIdx(d){return Math.max(0,Math.floor(Math.round((d-TRACK_START)/864e5)/7));}
+function fmtD(d){return String(d.getDate()).padStart(2,'0')+'.'+String(d.getMonth()+1).padStart(2,'0');}
+const answered=c=>!['found','sent'].includes(c.status)||(c.lastResult&&c.lastResult!=='noanswer'&&c.lastResult!=='mail');
+const isInt=c=>['interested','client'].includes(c.status);
+function renderStats(){
+  const nowW=weekIdx(new Date());
+  while(wdata.length<nowW+1)wdata.push(normTracker({}));
+  const W=wdata.map(w=>({...w,dm:0,reply:0,lead:0,client:0}));
+  contacts.forEach(c=>{if(c.status==='found')return;const d=parseBgDate(c.date);if(!d)return;const i=weekIdx(d);
+    while(W.length<i+1)W.push(normTracker({}));const w=W[i];w.dm++;if(answered(c))w.reply++;if(isInt(c))w.lead++;if(c.status==='client')w.client++;});
+  W.forEach((w,i)=>{if(wdata[i])wdata[i]={...w,rev:wdata[i].rev};});
+  $('t-weeks').innerHTML=W.map((w,i)=>{const s=new Date(TRACK_START);s.setDate(s.getDate()+i*7);const e=new Date(s);e.setDate(e.getDate()+6);
+    return `<tr><td class="small">${fmtD(s)}–${fmtD(e)}</td><td>${w.dm}</td><td>${w.reply}</td><td>${w.lead}</td><td>${w.client}</td>
+    <td><input type="number" min="0" value="${(wdata[i]||{}).rev||0}" style="width:80px;padding:4px;" onchange="wdata[${i}].rev=Math.max(0,+this.value);pushTracker()"></td></tr>`;}).reverse().join('');
+  const done=contacts.filter(c=>c.status!=='found');
+  $('t-segs').innerHTML=Object.keys(SEG).map(s=>{const l=done.filter(c=>segOf(c)===s);if(!l.length)return '';
+    const a=l.filter(answered).length,i=l.filter(isInt).length,k=l.filter(c=>c.status==='client').length;
+    return `<tr><td>${SEG[s].icon} ${s}</td><td>${l.length}</td><td>${a}</td><td>${i}</td><td>${k}</td><td><b>${a?Math.round(i/a*100):0}%</b></td></tr>`;}).join('')||'<tr><td colspan="6" class="empty">Още няма данни</td></tr>';
+  $('t-people').innerHTML=PEOPLE.map(p=>{const l=done.filter(c=>c.owner===p);
+    return `<tr><td>${p}</td><td>${l.reduce((s,c)=>s+(c.calls||0),0)}</td><td>${l.filter(isInt).length}</td><td>${l.filter(c=>c.status==='client').length}</td></tr>`;}).join('');
+}
+
+/* ===================== ОБЩИ ===================== */
+function renderMe(){
+  $('me-switch').innerHTML=PEOPLE.map(p=>`<button class="${p===me?'on':''}" onclick="setMe('${p}')">${p}</button>`).join('');
+  $('a-owner').innerHTML=PEOPLE.map(p=>`<option ${p===me?'selected':''}>${p}</option>`).join('');
+}
+function setMe(p){me=p;try{localStorage.setItem(LS_ME,p);}catch(e){}renderMe();renderAllPages();}
+function renderAllPages(){renderToday();renderAll();renderStats();}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');$('p-'+b.dataset.p).classList.add('on');window.scrollTo(0,0);
+});
+$('a-seg').innerHTML=Object.keys(SEG).map(s=>`<option>${s}</option>`).join('');
+
+loadLocal();renderMe();renderFilters();renderScripts();renderAllPages();
+pullFromSheets(false);
+setInterval(()=>{const a=document.activeElement;if(!document.hidden&&!$('sheet').classList.contains('on')&&!(a&&['INPUT','TEXTAREA','SELECT'].includes(a.tagName)))pullFromSheets(true);},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('sheet').classList.contains('on'))pullFromSheets(false);});
+setInterval(()=>{if(!$('sheet').classList.contains('on'))renderToday();},300000); // обновява „сега е добро време“
+</script>
+</body>
+</html>
