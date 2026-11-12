@@ -127,7 +127,7 @@ summary{cursor:pointer;font-weight:600;color:var(--white);font-size:14px;}
     <div><b id="s-calls">0</b><span>Обаждания днес</span></div>
     <div><b id="s-fu">0</b><span>Follow-up</span></div>
     <div><b id="s-int">0</b><span>Чакат демо</span></div>
-    <div><b id="s-mail">0</b><span>Имейли чакат</span></div>
+    <div><b id="s-mail">0</b><span>Имейли</span></div>
   </div>
   <h2>🔥 За обаждане <span class="cnt" id="c-call"></span></h2>
   <div id="list-call"></div>
@@ -135,7 +135,7 @@ summary{cursor:pointer;font-weight:600;color:var(--white);font-size:14px;}
   <div id="list-fu"></div>
   <h2>🎨 Заинтересовани – прати демо до 24 ч. <span class="cnt" id="c-int"></span></h2>
   <div id="list-int"></div>
-  <h2>✉️ Имейл одити (черновите са в Gmail) <span class="cnt" id="c-mail"></span></h2>
+  <h2 id="h-mail">✉️ Имейл одити <span class="cnt" id="c-mail"></span></h2>
   <div id="list-mail"></div>
 </div>
 
@@ -532,16 +532,19 @@ function card(c,pfx){
     <div class="res"><div class="res-lbl">След разговора – как мина?</div>${res.map(k=>`<button class="b ${k==='no'?'r-no':''}" onclick="outcome(${c.id},'${k}')">${OUT[k].lbl}</button>`).join('')}</div>
   </div>`;
 }
+const mailSent=c=>/^Изпратен/.test(c.hook||'');
 function mailCard(c){
+  const sent=mailSent(c);
   return `<div class="card">
     <div class="c-head"><div><div class="c-name">${c.site?`<a href="${esc(c.site)}" target="_blank">${esc(c.name)}</a>`:esc(c.name)}</div>
       <div class="c-sub">${esc(c.email)} · ${esc(c.area)}</div></div>
-      <span class="seg s-Имейл">✉️ ${c.psi?esc(c.psi)+'/100':'одит'}</span></div>
+      <span class="seg s-Имейл">${sent?'✅ Изпратен':'📝 Чернова'}</span></div>
     ${c.hook?`<div class="hook">${esc(c.hook)}</div>`:''}
     <div class="row">
-      <a class="b" href="https://mail.google.com/mail/u/0/#drafts" target="_blank">📝 Черновите в Gmail</a>
-      <button class="b pri" onclick="mailDone(${c.id},'sent')">✓ Изпратих</button>
-      <button class="b" onclick="mailDone(${c.id},'interested')">💬 Отговориха</button>
+      ${sent?'':`<a class="b" href="https://mail.google.com/mail/u/0/#drafts" target="_blank">📝 Отвори черновата</a>
+      <button class="b pri" onclick="mailDone(${c.id},'sent')">✓ Изпратих</button>`}
+      <button class="b ${sent?'pri':''}" onclick="mailDone(${c.id},'interested')">💬 Отговориха</button>
+      ${sent?`<button class="b" onclick="mailDone(${c.id},'sent')">✓ Без отговор – скрий</button>`:''}
       ${c.phone?`<a class="b" href="tel:+${intlPhone(c.phone)}">📞</a>`:''}
     </div></div>`;
 }
@@ -555,7 +558,7 @@ function renderToday(){
   const fu=contacts.filter(c=>c.fuTs>0&&c.fuTs<=eod.getTime()&&!['client','no','interested'].includes(c.status)&&mine(c)&&!isMail(c))
     .sort((a,b)=>a.fuTs-b.fuTs);
   const ints=contacts.filter(c=>c.status==='interested'&&mine(c)).sort((a,b)=>a.fuTs-b.fuTs);
-  const mails=contacts.filter(c=>isMail(c)&&c.status==='found');
+  const mails=me==='Иво'?contacts.filter(c=>isMail(c)&&c.status==='found').sort((a,b)=>mailSent(a)-mailSent(b)||b.id-a.id):[];
   const callsToday=contacts.filter(c=>c.calls>0&&c.date===todayStr()&&c.owner===me).length;
   $('s-calls').textContent=callsToday+'/3';$('s-fu').textContent=fu.length;$('s-int').textContent=ints.length;$('s-mail').textContent=mails.length;
   $('c-call').textContent=toCall.length?'('+toCall.length+')':'';$('c-fu').textContent=fu.length?'('+fu.length+')':'';
@@ -563,6 +566,7 @@ function renderToday(){
   $('list-call').innerHTML=toCall.length?toCall.map(c=>card(c)).join(''):'<div class="empty">Няма нови за обаждане. Новите идват всеки делничен ден около 07:00.</div>';
   $('list-fu').innerHTML=fu.length?fu.map(c=>card(c)).join(''):'<div class="empty">Няма follow-up за днес.</div>';
   $('list-int').innerHTML=ints.length?ints.map(c=>card(c)).join(''):'<div class="empty">Още няма – първото „Да“ идва 🙂</div>';
+  $('h-mail').style.display=$('list-mail').style.display=me==='Иво'?'':'none';
   $('list-mail').innerHTML=mails.length?mails.slice(0,15).map(mailCard).join(''):'<div class="empty">Няма нови имейл одити.</div>';
 }
 
